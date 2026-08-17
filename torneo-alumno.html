@@ -24,6 +24,11 @@ button{border:0;border-radius:14px;padding:13px 17px;font:inherit;font-weight:95
 .countdown{font-size:min(34vw,170px);font-weight:1000;line-height:1;text-align:center;margin:18vh 0 0;text-shadow:0 0 35px #ffd16699}
 .gameTop{display:grid;grid-template-columns:1fr auto auto;gap:9px;align-items:center;margin-bottom:9px}.metric{background:#071425;border:1px solid var(--line);border-radius:12px;padding:8px 10px;font-weight:900}.phase{color:var(--accent)}
 .arena{height:min(68vh,650px);min-height:470px;position:relative;overflow:hidden;border:1px solid #294464;border-radius:22px;background:linear-gradient(#071322,#020711);touch-action:none}
+@media(max-width:600px){
+  .arena.extreme{height:78svh;min-height:560px}
+  .arena.extreme .answer{top:72px}
+  .arena.extreme .ship{bottom:12px}
+}
 .prompt{position:absolute;z-index:6;top:11px;left:10px;right:10px;text-align:center;background:#071525e8;border:1px solid #315074;border-radius:15px;padding:10px 7px;font-size:clamp(21px,5vw,34px);font-weight:950}
 .lanes{position:absolute;inset:0;display:grid}.lane{border-right:1px dashed #28446255;position:relative}.lane:last-child{border-right:0}.answer{position:absolute;left:7%;right:7%;top:86px;background:#132944;border:1px solid #41658c;border-radius:14px;text-align:center;padding:12px 3px;font-size:clamp(20px,6vw,34px);font-weight:1000;box-shadow:0 8px 25px #0008;transform:translateY(var(--fall,0px));will-change:transform}
 .ship{position:absolute;z-index:5;bottom:25px;left:0;width:25%;text-align:center;font-size:46px;transition:left .12s ease,transform .1s;filter:drop-shadow(0 0 12px #79c7ff);pointer-events:none}
@@ -185,6 +190,7 @@ function loop(){
   while(qIndex<idx){evaluate(qIndex);qIndex++;showQuestion(qIndex)}
   const item=schedule[qIndex], phase=phaseAt(el);
   $('#phase').textContent=phaseLabel(phase);$('#time').textContent=formatTime(Math.ceil((dur-el)/1000));
+  $('#arena').classList.toggle('extreme',phase===3);
   if(item){
     const prog=Math.max(0,Math.min(1,(el-item.start)/(item.end-item.start)));
     const fall=prog*($('#arena').clientHeight-245);
