@@ -1,1 +1,123 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>¡VOTA! — Profesor</title>
+  <style>
+    :root{--bg:#101119;--panel:#181a25;--panel2:#202332;--ink:#f7f7fb;--muted:#a9abba;--line:#303345;--accent:#817dff;--danger:#ef4444;--ok:#34d399}
+    *{box-sizing:border-box}body{margin:0;font-family:Inter,ui-rounded,system-ui,-apple-system,Segoe UI,sans-serif;background:radial-gradient(circle at 50% -10%,#2d2a59,var(--bg) 40%);color:var(--ink);min-height:100vh}
+    button,input{font:inherit}.wrap{max-width:1180px;margin:0 auto;padding:22px 20px 40px}.top{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:18px}.brand{font-weight:950;font-size:28px;letter-spacing:-.04em}.status{color:var(--muted);font-size:13px}.panel{background:rgba(24,26,37,.92);border:1px solid var(--line);border-radius:26px;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.28)}
+    .start{text-align:center;max-width:660px;margin:8vh auto}.start h1{font-size:45px;letter-spacing:-.05em;margin:0 0 10px}.start p{color:var(--muted);font-size:18px}.primary,.secondary,.danger{border:0;border-radius:15px;padding:13px 18px;font-weight:900;cursor:pointer}.primary{background:var(--accent);color:#fff}.secondary{background:var(--panel2);color:#fff;border:1px solid var(--line)}.danger{background:#3a1c24;color:#fecaca;border:1px solid #612633}.primary:disabled,.secondary:disabled{opacity:.45;cursor:not-allowed}
+    .hidden{display:none!important}.roomrow{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}.roomblock{display:flex;align-items:center;gap:14px}.roomlabel{color:var(--muted);font-size:13px}.roomcode{font-size:34px;font-weight:950;letter-spacing:.15em}.actions{display:flex;gap:8px;flex-wrap:wrap}
+    .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(360px,.85fr);gap:18px}.questionBox{text-align:center;min-height:535px;display:flex;flex-direction:column;justify-content:center}.qno{font-size:14px;color:var(--muted);font-weight:850}.visual{font-size:120px;line-height:1;margin:18px 0 14px;filter:drop-shadow(0 18px 20px rgba(0,0,0,.3))}.question{font-size:45px;line-height:1.06;letter-spacing:-.045em;margin:0 auto;max-width:700px}.topic{color:var(--muted);margin-top:12px;font-weight:700}
+    .resultsHead{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:16px}.resultsHead h2{margin:0;font-size:25px}.count{font-size:15px;color:var(--muted)}.bars{display:grid;gap:13px}.barrow{display:grid;grid-template-columns:155px 1fr 42px;gap:10px;align-items:center}.barlabel{font-weight:850;display:flex;gap:8px;align-items:center}.track{height:20px;background:#2c2f3e;border-radius:99px;overflow:hidden}.fill{height:100%;width:0;background:linear-gradient(90deg,#7773ff,#a49fff);border-radius:99px;transition:width .35s ease}.num{text-align:right;font-weight:900}.placeholder{text-align:center;color:var(--muted);padding:32px 5px}.placeholder .big{font-size:48px;margin-bottom:8px}.footerActions{display:flex;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}.nav{display:flex;gap:8px}.share{font-size:13px;color:var(--muted);margin-top:11px;word-break:break-all}.share strong{color:#fff}
+    .revealOff .bars{filter:blur(14px);opacity:.3;pointer-events:none}.revealOff .placeholder{display:block!important}.resultsPanel:not(.revealOff) .placeholder.hideWhenRevealed{display:none!important}
+    @media(max-width:850px){.grid{grid-template-columns:1fr}.questionBox{min-height:400px}.question{font-size:37px}.visual{font-size:100px}}@media(max-width:530px){.barrow{grid-template-columns:125px 1fr 32px}.barlabel{font-size:13px}.roomcode{font-size:28px}.question{font-size:32px}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><div class="brand">¡VOTA! — Profesor 🇪🇸</div><div class="status" id="firebaseStatus">conectando…</div></div>
 
+  <section class="panel start" id="startPanel">
+    <h1>Clase en vivo</h1>
+    <p>Crea una sala, comparte el código y empieza a votar.</p>
+    <button class="primary" id="createBtn">Crear una clase</button>
+    <div class="status" id="startStatus" style="margin-top:14px"></div>
+  </section>
+
+  <main class="hidden" id="dashboard">
+    <div class="panel roomrow">
+      <div class="roomblock"><div><div class="roomlabel">CÓDIGO DE LA CLASE</div><div class="roomcode" id="roomCode"></div></div></div>
+      <div class="actions"><button class="secondary" id="copyBtn">Copiar enlace alumno</button><button class="danger" id="closeBtn">Cerrar clase</button></div>
+      <div class="share" style="width:100%">Alumno: <strong id="studentLink"></strong></div>
+    </div>
+
+    <div class="grid">
+      <section class="panel questionBox">
+        <div class="qno" id="qno"></div><div class="visual" id="visual"></div><h1 class="question" id="question"></h1><div class="topic" id="topic"></div>
+      </section>
+
+      <section class="panel resultsPanel revealOff" id="resultsPanel">
+        <div class="resultsHead"><h2>Resultados</h2><div class="count" id="count">0 votos</div></div>
+        <div class="bars" id="bars"></div>
+        <div class="placeholder hideWhenRevealed" id="hiddenMsg"><div class="big">🙈</div>Resultados ocultos<br><small>Los alumnos no ven el gráfico; tú decides cuándo mostrarlo en pantalla.</small></div>
+        <div class="footerActions">
+          <button class="secondary" id="revealBtn">Mostrar resultados</button>
+          <div class="nav"><button class="secondary" id="prevBtn">← Anterior</button><button class="primary" id="nextBtn">Siguiente →</button></div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js';
+  import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js';
+  import { getDatabase, ref, get, set, update, onValue, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js';
+  import { firebaseConfig, isFirebaseConfigured } from './firebase-config.js';
+  import { QUESTIONS, RATINGS } from './questions.js';
+
+  const $=s=>document.querySelector(s); const createBtn=$('#createBtn'),startPanel=$('#startPanel'),startStatus=$('#startStatus'),dashboard=$('#dashboard'),firebaseStatus=$('#firebaseStatus'),roomCodeEl=$('#roomCode'),studentLinkEl=$('#studentLink'),copyBtn=$('#copyBtn'),closeBtn=$('#closeBtn'),qno=$('#qno'),visual=$('#visual'),question=$('#question'),topic=$('#topic'),bars=$('#bars'),count=$('#count'),resultsPanel=$('#resultsPanel'),revealBtn=$('#revealBtn'),prevBtn=$('#prevBtn'),nextBtn=$('#nextBtn');
+  let app,auth,db,user,roomCode,currentIndex=0,revealed=false,votesUnsub=null,stateUnsub=null;
+
+  if(!isFirebaseConfigured){ firebaseStatus.textContent='Firebase no configurado'; startStatus.textContent='Uzupełnij firebase-config.js — zobacz README.md.'; createBtn.disabled=true; }
+  else { app=initializeApp(firebaseConfig); auth=getAuth(app); db=getDatabase(app); signInAnonymously(auth).catch(e=>startStatus.textContent=e.message); onAuthStateChanged(auth,u=>{user=u;firebaseStatus.textContent=u?'Firebase ✓':'conectando…'}); }
+
+  createBtn.addEventListener('click',createRoom); copyBtn.addEventListener('click',copyStudentLink); revealBtn.addEventListener('click',toggleReveal); prevBtn.addEventListener('click',()=>move(-1)); nextBtn.addEventListener('click',()=>move(1)); closeBtn.addEventListener('click',closeRoom);
+
+  async function createRoom(){
+    if(!user){startStatus.textContent='Conectando… prueba otra vez.';return} createBtn.disabled=true; startStatus.textContent='Creando…';
+    try{
+      let code=null;
+      for(let i=0;i<8;i++){
+        const candidate=String(Math.floor(100000+Math.random()*900000));
+        const s=await get(ref(db,`rooms/${candidate}/hostUid`)); if(!s.exists()){code=candidate;break}
+      }
+      if(!code) throw new Error('No pude generar un código. Inténtalo otra vez.');
+      roomCode=code;
+      await set(ref(db,`rooms/${roomCode}`),{hostUid:user.uid,state:{currentIndex:0,revealed:false,closed:false,createdAt:serverTimestamp()}});
+      startPanel.classList.add('hidden');dashboard.classList.remove('hidden');roomCodeEl.textContent=roomCode;
+      const url=new URL('alumno.html',location.href);url.searchParams.set('room',roomCode);studentLinkEl.textContent=url.href;
+      subscribeState();
+    }catch(e){startStatus.textContent=e.message;createBtn.disabled=false}
+  }
+
+  function subscribeState(){
+    if(stateUnsub)stateUnsub();
+    stateUnsub=onValue(ref(db,`rooms/${roomCode}/state`),snap=>{
+      const s=snap.val();if(!s)return;currentIndex=Number(s.currentIndex||0);revealed=!!s.revealed;
+      renderQuestion();subscribeVotes();
+    });
+  }
+
+  function renderQuestion(){
+    const item=QUESTIONS[Math.min(currentIndex,QUESTIONS.length-1)];qno.textContent=`${currentIndex+1} / ${QUESTIONS.length}`;visual.textContent=item.visual;question.textContent=item.question;topic.textContent=item.label;
+    resultsPanel.classList.toggle('revealOff',!revealed);revealBtn.textContent=revealed?'Ocultar resultados':'Mostrar resultados';prevBtn.disabled=currentIndex<=0;nextBtn.textContent=currentIndex>=QUESTIONS.length-1?'Terminar ✓':'Siguiente →';renderBars({});
+  }
+
+  function subscribeVotes(){
+    if(votesUnsub)votesUnsub();
+    votesUnsub=onValue(ref(db,`rooms/${roomCode}/votes/${currentIndex}`),snap=>renderBars(snap.val()||{}));
+  }
+
+  function renderBars(votes){
+    const values=Object.values(votes).map(Number);const total=values.length;count.textContent=`${total} ${total===1?'voto':'votos'}`;bars.innerHTML='';
+    RATINGS.forEach(r=>{
+      const n=values.filter(v=>v===r.value).length;const pct=total?Math.round(n/total*100):0;
+      const row=document.createElement('div');row.className='barrow';row.innerHTML=`<div class="barlabel"><span>${r.icon}</span><span>${r.label}</span></div><div class="track"><div class="fill" style="width:${pct}%"></div></div><div class="num">${n}</div>`;bars.appendChild(row);
+    });
+  }
+
+  async function toggleReveal(){ if(!roomCode)return;await update(ref(db,`rooms/${roomCode}/state`),{revealed:!revealed}); }
+  async function move(delta){
+    if(!roomCode)return;
+    if(delta>0 && currentIndex>=QUESTIONS.length-1){await update(ref(db,`rooms/${roomCode}/state`),{closed:true,currentIndex:QUESTIONS.length});return}
+    const next=Math.max(0,Math.min(QUESTIONS.length-1,currentIndex+delta));await update(ref(db,`rooms/${roomCode}/state`),{currentIndex:next,revealed:false});
+  }
+  async function closeRoom(){ if(!roomCode)return;if(confirm('¿Cerrar la clase para todos?'))await update(ref(db,`rooms/${roomCode}/state`),{closed:true}); }
+  async function copyStudentLink(){try{await navigator.clipboard.writeText(studentLinkEl.textContent);copyBtn.textContent='¡Copiado! ✓';setTimeout(()=>copyBtn.textContent='Copiar enlace alumno',1400)}catch{}}
+</script>
+</body>
+</html>
