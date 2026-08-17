@@ -170,7 +170,7 @@ function qDuration(t){
   if(t<30000)return 3400;
   if(t<90000)return 3100;
   if(t<150000){const x=(t-90000)/60000;return 2350-450*x}
-  const x=(t-150000)/30000;return 1250-350*x;
+  const x=(t-150000)/30000;return 1500-300*x;
 }
 function phaseAt(t){return t<30000?0:t<90000?1:t<150000?2:3}
 function phaseLabel(p){return ['FÁCIL','FÁCIL','RÁPIDO','🔥 MÁXIMO'][p]}
