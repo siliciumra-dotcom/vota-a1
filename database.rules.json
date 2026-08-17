@@ -1,0 +1,39 @@
+{
+  "rules": {
+    "rooms": {
+      "$roomId": {
+        ".read": "auth != null && data.child('hostUid').val() === auth.uid",
+        ".write": "auth != null && $roomId.matches(/^[0-9]{6}$/) && ((!data.exists() && newData.child('hostUid').val() === auth.uid) || (data.exists() && data.child('hostUid').val() === auth.uid && newData.child('hostUid').val() === auth.uid))",
+
+        "hostUid": {
+          ".read": "auth != null"
+        },
+
+        "state": {
+          ".read": "auth != null",
+          ".write": "auth != null && root.child('rooms').child($roomId).child('hostUid').val() === auth.uid"
+        },
+
+        "participants": {
+          "$uid": {
+            ".read": "auth != null && (auth.uid === $uid || root.child('rooms').child($roomId).child('hostUid').val() === auth.uid)",
+            ".write": "auth != null && auth.uid === $uid && root.child('rooms').child($roomId).child('state').child('closed').val() !== true",
+            ".validate": "!newData.exists() || (newData.hasChildren(['nick','joinedAt']) && newData.child('nick').isString() && newData.child('nick').val().length <= 40 && newData.child('joinedAt').isNumber())"
+          }
+        },
+
+        "votes": {
+          "$question": {
+            ".read": "auth != null && root.child('rooms').child($roomId).child('hostUid').val() === auth.uid",
+
+            "$uid": {
+              ".read": "auth != null && (auth.uid === $uid || root.child('rooms').child($roomId).child('hostUid').val() === auth.uid)",
+              ".write": "auth != null && auth.uid === $uid && $question.matches(/^([0-9]|1[0-9])$/) && root.child('rooms').child($roomId).child('state').child('closed').val() !== true",
+              ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 4)"
+            }
+          }
+        }
+      }
+    }
+  }
+}
