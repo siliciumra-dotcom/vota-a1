@@ -160,14 +160,16 @@ function buildSchedule(duration){
   }return arr;
 }
 function qDuration(t){
-  if(t<30000)return 3200;
-  if(t<60000)return 2600;
-  if(t<120000){const x=(t-60000)/60000;return 2100-500*x}
-  const x=(t-120000)/60000;return 1350-400*x;
+  // 0:00–1:30: spokojnie; 1:30–2:30: wyraźnie szybciej;
+  // 2:30–3:00: najszybsza końcówka.
+  if(t<30000)return 3400;
+  if(t<90000)return 3100;
+  if(t<150000){const x=(t-90000)/60000;return 2350-450*x}
+  const x=(t-150000)/30000;return 1250-350*x;
 }
-function phaseAt(t){return t<30000?0:t<60000?1:t<120000?2:3}
-function phaseLabel(p){return ['FÁCIL','MEDIO','DIFÍCIL','🔥 EXTREMO'][p]}
-function lanesAt(p){return p===0?2:p===1?3:4}
+function phaseAt(t){return t<30000?0:t<90000?1:t<150000?2:3}
+function phaseLabel(p){return ['FÁCIL','FÁCIL','RÁPIDO','🔥 MÁXIMO'][p]}
+function lanesAt(p){return p===0?2:p===3?4:3}
 function beginGame(){
   qIndex=findScheduleIndex(Math.max(0,nowServer()-gameStart));
   showQuestion(qIndex); requestAnimationFrame(loop);
@@ -255,10 +257,21 @@ function makeQuestion(seed,index,phase,nlanes){
   }else if(phase===1){
     add(target+(rnd()<.5?-1:1)*10);add(target+(rnd()<.5?-1:1)*100);
     while(vals.size<nlanes)add(100+Math.floor(rnd()*901));
+  }else if(phase===2){
+    // Szybciej, ale jeszcze bez najbardziej złośliwych przestawień cyfr.
+    add(target+(rnd()<.5?-1:1)*10);
+    add(target+(rnd()<.5?-1:1)*100);
+    while(vals.size<nlanes)add(100+Math.floor(rnd()*901));
   }else{
+    // Ostatnie 30 sekund: podobne liczby + największa prędkość.
     const s=String(target).padStart(3,'0');
-    if(target<1000){add(Number(s[0]+s[2]+s[1]));add(target+(rnd()<.5?-1:1)*10);add(target+(rnd()<.5?-1:1)*100)}
-    if(phase===3){add(target+(rnd()<.5?-1:1));add(target+(rnd()<.5?-1:1)*20)}
+    if(target<1000){
+      add(Number(s[0]+s[2]+s[1]));
+      add(target+(rnd()<.5?-1:1)*10);
+      add(target+(rnd()<.5?-1:1)*100);
+    }
+    add(target+(rnd()<.5?-1:1));
+    add(target+(rnd()<.5?-1:1)*20);
     while(vals.size<nlanes)add(100+Math.floor(rnd()*901));
   }
   let options=[...vals].slice(0,nlanes);
