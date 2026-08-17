@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Torneo de números</title>
+<style>
+:root{--bg:#020712;--panel:#0c182a;--line:#243b5b;--text:#f7fbff;--muted:#9fb3cb;--accent:#ffd166;--ok:#63e6a8;--bad:#ff7887}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;min-height:100%;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#020712;color:var(--text)}
+body{overflow-x:hidden}.stars{position:fixed;inset:0;pointer-events:none;background:
+radial-gradient(circle at 10% 20%,#fff 0 1px,transparent 1.5px),
+radial-gradient(circle at 30% 70%,#fff8 0 1px,transparent 1.5px),
+radial-gradient(circle at 72% 30%,#fff 0 1px,transparent 1.5px),
+radial-gradient(circle at 85% 78%,#fff8 0 1px,transparent 1.5px),
+radial-gradient(circle at 55% 55%,#fff6 0 1px,transparent 1.5px);
+background-size:170px 170px,220px 220px,260px 260px,190px 190px,300px 300px;opacity:.7}
+.wrap{max-width:760px;margin:auto;padding:16px;position:relative}.top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.brand{font-size:23px;font-weight:950}.badge{background:#0c182a;border:1px solid var(--line);border-radius:999px;padding:7px 10px;font-size:12px;font-weight:850;color:#c9d7e6}
+.card{background:linear-gradient(180deg,#101f35ee,#091526ee);border:1px solid var(--line);border-radius:22px;padding:19px;box-shadow:0 20px 60px #0008}
+h1,h2,p{margin-top:0}.join input{width:100%;font:inherit;font-size:30px;text-align:center;letter-spacing:.12em;padding:14px;border-radius:15px;border:1px solid #375274;background:#06111f;color:white}
+button{border:0;border-radius:14px;padding:13px 17px;font:inherit;font-weight:950;background:var(--accent);color:#152035;cursor:pointer}.join button{width:100%;margin-top:10px}
+.muted{color:var(--muted)}.hidden{display:none!important}.center{text-align:center}
+.waitNick{font-size:28px;font-weight:950}.rivals{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin:14px 0}.rival{padding:9px 12px;background:#071425;border:1px solid var(--line);border-radius:999px;font-weight:850}
+.countdown{font-size:min(34vw,170px);font-weight:1000;line-height:1;text-align:center;margin:18vh 0 0;text-shadow:0 0 35px #ffd16699}
+.gameTop{display:grid;grid-template-columns:1fr auto auto;gap:9px;align-items:center;margin-bottom:9px}.metric{background:#071425;border:1px solid var(--line);border-radius:12px;padding:8px 10px;font-weight:900}.phase{color:var(--accent)}
+.arena{height:min(68vh,650px);min-height:470px;position:relative;overflow:hidden;border:1px solid #294464;border-radius:22px;background:linear-gradient(#071322,#020711);touch-action:none}
+.prompt{position:absolute;z-index:6;top:11px;left:10px;right:10px;text-align:center;background:#071525e8;border:1px solid #315074;border-radius:15px;padding:10px 7px;font-size:clamp(21px,5vw,34px);font-weight:950}
+.lanes{position:absolute;inset:0;display:grid}.lane{border-right:1px dashed #28446255;position:relative}.lane:last-child{border-right:0}.answer{position:absolute;left:7%;right:7%;top:86px;background:#132944;border:1px solid #41658c;border-radius:14px;text-align:center;padding:12px 3px;font-size:clamp(20px,6vw,34px);font-weight:1000;box-shadow:0 8px 25px #0008;transform:translateY(var(--fall,0px));will-change:transform}
+.ship{position:absolute;z-index:5;bottom:25px;left:0;width:25%;text-align:center;font-size:46px;transition:left .12s ease,transform .1s;filter:drop-shadow(0 0 12px #79c7ff);pointer-events:none}
+.ship.hit{transform:scale(1.3)}.ship.bad{transform:rotate(15deg) scale(.85);filter:drop-shadow(0 0 14px #ff5f70)}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:10px}.controls button{font-size:24px;background:#132945;color:white;border:1px solid #36577c;padding:12px}
+.flash{position:absolute;inset:0;pointer-events:none;z-index:10;opacity:0}.flash.ok{background:#3be88b33;animation:blink .24s}.flash.bad{background:#ff4d6238;animation:blink .24s}@keyframes blink{50%{opacity:1}}
+.supernova{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:#020711e8;overflow:hidden}.nova{font-size:130px;animation:nova 1.3s ease-out forwards}@keyframes nova{0%{transform:scale(.1);filter:brightness(1)}60%{transform:scale(4);filter:brightness(3)}100%{transform:scale(9);opacity:0}}
+.resultTitle{font-size:36px;font-weight:1000;margin-bottom:8px}.scoreBig{font-size:64px;font-weight:1000;color:var(--accent)}.table{width:100%;border-collapse:collapse;margin-top:13px}.table td,.table th{padding:9px 6px;border-bottom:1px solid var(--line);text-align:left}.table td:last-child,.table th:last-child{text-align:right}
+.win{color:var(--ok)}.lose{color:#ff9aa5}.status{margin-top:10px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="stars"></div>
+<div class="wrap">
+  <div class="top"><div class="brand">🚀 NÚMEROS</div><div class="badge" id="nick">…</div></div>
+
+  <section class="card join" id="join">
+    <h2>Entra en la partida</h2>
+    <input id="roomInput" inputmode="numeric" maxlength="6" placeholder="000000">
+    <button id="joinBtn">Entrar</button>
+    <div class="status" id="joinStatus"></div>
+  </section>
+
+  <section class="card center hidden" id="waiting">
+    <div class="muted">TU NOMBRE</div><div class="waitNick" id="waitNick"></div>
+    <p style="margin-top:18px">Esperando al profesor…</p>
+    <div class="rivals" id="rivals"></div>
+  </section>
+
+  <section class="hidden" id="countScreen"><div class="countdown" id="countdown">3</div></section>
+
+  <section class="hidden" id="game">
+    <div class="gameTop">
+      <div class="metric phase" id="phase">FÁCIL</div>
+      <div class="metric">⭐ <span id="score">0</span></div>
+      <div class="metric">⏱ <span id="time">3:00</span></div>
+    </div>
+    <div class="arena" id="arena">
+      <div class="prompt" id="prompt">cien</div>
+      <div class="lanes" id="lanes"></div>
+      <div class="ship" id="ship">🚀</div>
+      <div class="flash" id="flash"></div>
+    </div>
+    <div class="controls"><button id="left">◀</button><button id="right">▶</button></div>
+    <p class="muted center" style="margin-top:8px">← → / A D / toca una columna</p>
+  </section>
+
+  <section class="card center hidden" id="groupResult">
+    <div class="resultTitle" id="duelTitle">Resultado del duelo</div>
+    <div class="scoreBig" id="myScore">0</div>
+    <div class="muted">tus puntos</div>
+    <table class="table"><tbody id="groupTable"></tbody></table>
+    <p class="muted" id="globalWait">Esperando la clasificación general…</p>
+  </section>
+
+  <section class="card hidden" id="globalResult">
+    <div class="resultTitle center">🏆 Clasificación general</div>
+    <table class="table"><thead><tr><th>#</th><th>Jugador</th><th>Puntos</th></tr></thead><tbody id="globalTable"></tbody></table>
+  </section>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js';
+import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js';
+import { getDatabase, ref, get, set, onValue, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js';
+import { firebaseConfig } from './firebase-config.js';
+import { NICKNAMES } from './questions.js';
+
+const $=s=>document.querySelector(s);
+const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getDatabase(app);
+let user=null,code=null,nickname=getSavedNick(),meta=null,state=null,groupId=null,groups={},participants={},scores={},serverOffset=0;
+let started=false,finished=false,gameStart=0,schedule=[],qIndex=0,currentQ=null,lane=0,score=0,correct=0,total=0,streak=0,lastEval=-1,groupShownAt=0,globalTimer=null;
+const join=$('#join'),waiting=$('#waiting'),countScreen=$('#countScreen'),game=$('#game'),groupResult=$('#groupResult'),globalResult=$('#globalResult');
+$('#nick').textContent=nickname; $('#waitNick').textContent=nickname;
+
+onValue(ref(db,'.info/serverTimeOffset'),s=>serverOffset=Number(s.val()||0));
+signInAnonymously(auth).catch(e=>$('#joinStatus').textContent=e.message);
+onAuthStateChanged(auth,u=>{user=u;if(u && new URLSearchParams(location.search).get('room')) joinRoom()});
+const p=new URLSearchParams(location.search); if(p.get('room')) $('#roomInput').value=p.get('room').replace(/\D/g,'').slice(0,6);
+$('#joinBtn').onclick=joinRoom; $('#roomInput').onkeydown=e=>{if(e.key==='Enter')joinRoom()};
+
+function nowServer(){return Date.now()+serverOffset}
+function getSavedNick(){let n=localStorage.getItem('vota_a1_nick');if(!n){n=NICKNAMES[Math.floor(Math.random()*NICKNAMES.length)];localStorage.setItem('vota_a1_nick',n)}return n}
+async function joinRoom(){
+  if(!user)return;
+  const c=$('#roomInput').value.replace(/\D/g,'').slice(0,6); if(c.length!==6){$('#joinStatus').textContent='Escribe 6 números.';return}
+  $('#joinBtn').disabled=true; $('#joinStatus').textContent='Conectando…';
+  try{
+    const h=await get(ref(db,`tournaments/${c}/hostUid`)); if(!h.exists())throw Error('No encuentro esta clase.');
+    const st=(await get(ref(db,`tournaments/${c}/state`))).val()||{};
+    code=c;
+    const ps=(await get(ref(db,`tournaments/${c}/participants`))).val()||{};
+    const alreadyHere=!!ps[user.uid];
+    if(st.status!=='lobby' && !alreadyHere)throw Error('La partida ya ha empezado.');
+    if(alreadyHere){nickname=ps[user.uid].nick||nickname;localStorage.setItem('vota_a1_nick',nickname);$('#nick').textContent=nickname;$('#waitNick').textContent=nickname}
+    else{
+      const used=new Set(Object.entries(ps).filter(([uid])=>uid!==user.uid).map(([,v])=>v.nick));
+      if(used.has(nickname)){const free=NICKNAMES.filter(n=>!used.has(n));nickname=free[Math.floor(Math.random()*free.length)]||nickname+' 2';localStorage.setItem('vota_a1_nick',nickname);$('#nick').textContent=nickname;$('#waitNick').textContent=nickname}
+      await set(ref(db,`tournaments/${c}/participants/${user.uid}`),{nick:nickname,joinedAt:serverTimestamp()});
+    }
+    join.classList.add('hidden');waiting.classList.remove('hidden');subscribe();
+  }catch(e){$('#joinStatus').textContent=e.message;$('#joinBtn').disabled=false}
+}
+function subscribe(){
+  onValue(ref(db,`tournaments/${code}/meta`),s=>meta=s.val()||null);
+  onValue(ref(db,`tournaments/${code}/participants`),s=>{participants=s.val()||{};if(finished)renderResults()});
+  onValue(ref(db,`tournaments/${code}/groups`),s=>{groups=s.val()||{};renderRivals()});
+  onValue(ref(db,`tournaments/${code}/pairingOf/${user.uid}`),s=>{groupId=s.val()||null;renderRivals()});
+  onValue(ref(db,`tournaments/${code}/scores`),s=>{scores=s.val()||{};if(finished)renderResults()});
+  onValue(ref(db,`tournaments/${code}/state`),s=>{state=s.val()||{};if(state.status==='playing'&&!started)prepareStart()});
+}
+function renderRivals(){
+  if(!groupId||!groups[groupId])return;
+  const members=groups[groupId];
+  $('#rivals').innerHTML=Object.entries(members).filter(([uid])=>uid!==user.uid).map(([,m])=>`<span class="rival">VS ${esc(m.nick)}</span>`).join('');
+}
+function prepareStart(){
+  if(!meta||!state.startAt){setTimeout(prepareStart,80);return}
+  started=true; waiting.classList.add('hidden'); countScreen.classList.remove('hidden');
+  gameStart=Number(state.startAt)+Number(state.countdownMs||meta.countdownMs||5000);
+  schedule=buildSchedule(Number(state.durationMs||180000));
+  countdownLoop();
+}
+function countdownLoop(){
+  const left=gameStart-nowServer();
+  if(left<=0){countScreen.classList.add('hidden');game.classList.remove('hidden');beginGame();return}
+  $('#countdown').textContent=Math.max(1,Math.ceil(left/1000));
+  requestAnimationFrame(countdownLoop);
+}
+function buildSchedule(duration){
+  const arr=[]; let t=0,i=0;
+  while(t<duration){
+    const d=qDuration(t);arr.push({i,start:t,end:Math.min(duration,t+d)});t+=d;i++;
+  }return arr;
+}
+function qDuration(t){
+  if(t<30000)return 3200;
+  if(t<60000)return 2600;
+  if(t<120000){const x=(t-60000)/60000;return 2100-500*x}
+  const x=(t-120000)/60000;return 1350-400*x;
+}
+function phaseAt(t){return t<30000?0:t<60000?1:t<120000?2:3}
+function phaseLabel(p){return ['FÁCIL','MEDIO','DIFÍCIL','🔥 EXTREMO'][p]}
+function lanesAt(p){return p===0?2:p===1?3:4}
+function beginGame(){
+  qIndex=findScheduleIndex(Math.max(0,nowServer()-gameStart));
+  showQuestion(qIndex); requestAnimationFrame(loop);
+}
+function findScheduleIndex(el){
+  let lo=0; while(lo<schedule.length-1 && schedule[lo].end<=el)lo++; return lo;
+}
+function loop(){
+  if(finished)return;
+  const el=nowServer()-gameStart, dur=Number(state.durationMs||180000);
+  if(el>=dur){finishGame();return}
+  const idx=findScheduleIndex(Math.max(0,el));
+  while(qIndex<idx){evaluate(qIndex);qIndex++;showQuestion(qIndex)}
+  const item=schedule[qIndex], phase=phaseAt(el);
+  $('#phase').textContent=phaseLabel(phase);$('#time').textContent=formatTime(Math.ceil((dur-el)/1000));
+  if(item){
+    const prog=Math.max(0,Math.min(1,(el-item.start)/(item.end-item.start)));
+    const fall=prog*($('#arena').clientHeight-245);
+    document.querySelectorAll('.answer').forEach(a=>a.style.setProperty('--fall',fall+'px'));
+  }
+  requestAnimationFrame(loop);
+}
+function showQuestion(idx){
+  if(idx>=schedule.length)return;
+  const p=phaseAt(schedule[idx].start), n=lanesAt(p);
+  currentQ=makeQuestion(Number(meta.seed||1),idx,p,n);
+  lane=Math.min(lane,n-1);$('#prompt').textContent=currentQ.words;
+  const lanes=$('#lanes');lanes.style.gridTemplateColumns=`repeat(${n},1fr)`;lanes.innerHTML='';
+  currentQ.options.forEach((v,i)=>{
+    const el=document.createElement('div');el.className='lane';el.dataset.lane=i;el.innerHTML=`<div class="answer">${v}</div>`;el.onclick=()=>moveTo(i);lanes.appendChild(el)
+  });
+  positionShip(n);
+}
+function moveTo(i){if(!currentQ)return;lane=Math.max(0,Math.min(currentQ.options.length-1,i));positionShip(currentQ.options.length)}
+function positionShip(n){const w=100/n;const ship=$('#ship');ship.style.width=w+'%';ship.style.left=(lane*w)+'%'}
+function evaluate(idx){
+  if(idx===lastEval||!currentQ)return;lastEval=idx;total++;
+  const ok=currentQ.options[lane]===currentQ.target, ph=currentQ.phase;
+  const ship=$('#ship'),flash=$('#flash'); ship.classList.remove('hit','bad');flash.className='flash';
+  if(ok){correct++;streak++;const base=[100,130,175,240][ph];score+=base+Math.min(100,streak*10);ship.classList.add('hit');flash.classList.add('ok')}
+  else{streak=0;ship.classList.add('bad');flash.classList.add('bad')}
+  $('#score').textContent=score;
+  setTimeout(()=>{ship.classList.remove('hit','bad');flash.className='flash'},220);
+}
+async function finishGame(){
+  if(finished)return; evaluate(qIndex);finished=true;game.classList.add('hidden');
+  const nova=document.createElement('div');nova.className='supernova';nova.innerHTML='<div class="nova">⭐</div>';document.body.appendChild(nova);setTimeout(()=>nova.remove(),1350);
+  await set(ref(db,`tournaments/${code}/scores/${user.uid}`),{nick:nickname,score,correct,total,finishedAt:serverTimestamp()});
+  setTimeout(()=>renderResults(),1400);
+}
+function renderResults(){
+  if(!finished||!groupId||!groups[groupId])return;
+  const memberIds=Object.keys(groups[groupId]), ready=memberIds.every(uid=>scores[uid]);
+  if(!ready){groupResult.classList.remove('hidden');$('#duelTitle').textContent='Esperando a tu rival…';$('#myScore').textContent=score;return}
+  const rows=memberIds.map(uid=>({uid,...scores[uid]})).sort((a,b)=>b.score-a.score||b.correct-a.correct);
+  const myPos=rows.findIndex(r=>r.uid===user.uid), tie=rows.length>1&&rows[0].score===rows[1].score;
+  $('#duelTitle').innerHTML=tie?'🤝 Empate':myPos===0?'<span class="win">🏁 ¡Has ganado tu duelo!</span>':'<span class="lose">🏁 Resultado del duelo</span>';
+  $('#myScore').textContent=score;
+  $('#groupTable').innerHTML=rows.map((r,i)=>`<tr><td>${i+1}. <strong>${esc(r.nick)}</strong></td><td>${r.correct}/${r.total}</td><td><strong>${r.score}</strong></td></tr>`).join('');
+  groupResult.classList.remove('hidden');
+  if(!groupShownAt)groupShownAt=Date.now();
+  const allIds=Object.keys(participants),allDone=allIds.length>0&&allIds.every(uid=>scores[uid]);
+  if(allDone){
+    const wait=Math.max(0,6000-(Date.now()-groupShownAt));
+    clearTimeout(globalTimer);globalTimer=setTimeout(showGlobal,wait);
+    $('#globalWait').textContent='La clasificación general aparece en unos segundos…';
+  }else $('#globalWait').textContent='Esperando a los demás jugadores…';
+}
+function showGlobal(){
+  const arr=Object.entries(scores).map(([uid,v])=>({uid,...v})).sort((a,b)=>b.score-a.score||b.correct-a.correct);
+  $('#globalTable').innerHTML=arr.map((r,i)=>`<tr><td>${i<3?['🥇','🥈','🥉'][i]:i+1}</td><td><strong>${esc(r.nick)}</strong></td><td><strong>${r.score}</strong></td></tr>`).join('');
+  groupResult.classList.add('hidden');globalResult.classList.remove('hidden');
+}
+function makeQuestion(seed,index,phase,nlanes){
+  const rnd=mulberry32((seed + Math.imul(index+1,2654435761))>>>0);
+  let target;
+  if(phase===0){target=100+Math.floor(rnd()*10)*100;if(target>1000)target=1000}
+  else if(phase===1){target=100+Math.floor(rnd()*901)}
+  else target=100+Math.floor(rnd()*900);
+  if(rnd()<.025)target=1000;
+  const vals=new Set([target]);
+  const add=v=>{v=Math.max(100,Math.min(1000,Math.round(v)));if(v!==target)vals.add(v)};
+  if(phase===0){
+    while(vals.size<nlanes)add(target+(rnd()<.5?-1:1)*(100+Math.floor(rnd()*5)*100));
+  }else if(phase===1){
+    add(target+(rnd()<.5?-1:1)*10);add(target+(rnd()<.5?-1:1)*100);
+    while(vals.size<nlanes)add(100+Math.floor(rnd()*901));
+  }else{
+    const s=String(target).padStart(3,'0');
+    if(target<1000){add(Number(s[0]+s[2]+s[1]));add(target+(rnd()<.5?-1:1)*10);add(target+(rnd()<.5?-1:1)*100)}
+    if(phase===3){add(target+(rnd()<.5?-1:1));add(target+(rnd()<.5?-1:1)*20)}
+    while(vals.size<nlanes)add(100+Math.floor(rnd()*901));
+  }
+  let options=[...vals].slice(0,nlanes);
+  while(options.length<nlanes){const v=100+Math.floor(rnd()*901);if(!options.includes(v))options.push(v)}
+  for(let i=options.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[options[i],options[j]]=[options[j],options[i]]}
+  return {target,words:numberES(target),options,phase};
+}
+function mulberry32(a){return function(){let t=a+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}}
+function numberES(n){
+  n=Math.round(n);if(n===1000)return'mil';if(n===100)return'cien';
+  const units=['','uno','dos','tres','cuatro','cinco','seis','siete','ocho','nueve'];
+  const teens={10:'diez',11:'once',12:'doce',13:'trece',14:'catorce',15:'quince',16:'dieciséis',17:'diecisiete',18:'dieciocho',19:'diecinueve'};
+  const twenties={20:'veinte',21:'veintiuno',22:'veintidós',23:'veintitrés',24:'veinticuatro',25:'veinticinco',26:'veintiséis',27:'veintisiete',28:'veintiocho',29:'veintinueve'};
+  const tens=['','','veinte','treinta','cuarenta','cincuenta','sesenta','setenta','ochenta','noventa'];
+  const hundreds=['','ciento','doscientos','trescientos','cuatrocientos','quinientos','seiscientos','setecientos','ochocientos','novecientos'];
+  const under100=x=>{if(x<10)return units[x];if(teens[x])return teens[x];if(twenties[x])return twenties[x];const t=Math.floor(x/10),u=x%10;return tens[t]+(u?' y '+units[u]:'')};
+  if(n<100)return under100(n);const h=Math.floor(n/100),r=n%100;return hundreds[h]+(r?' '+under100(r):'');
+}
+function formatTime(s){s=Math.max(0,s);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')}
+function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+$('#left').onclick=()=>moveTo(lane-1);$('#right').onclick=()=>moveTo(lane+1);
+addEventListener('keydown',e=>{if(['ArrowLeft','a','A'].includes(e.key))moveTo(lane-1);if(['ArrowRight','d','D'].includes(e.key))moveTo(lane+1);const k=Number(e.key);if(k>=1&&currentQ&&k<=currentQ.options.length)moveTo(k-1)});
+</script>
+</body>
+</html>
