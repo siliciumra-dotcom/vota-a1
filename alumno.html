@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>¡VOTA! — Alumno</title>
+  <style>
+    :root{--bg:#f7f7fb;--card:#fff;--ink:#17171d;--muted:#6a6a79;--line:#e7e7ef;--accent:#5b57ff;--ok:#15803d;--danger:#b91c1c}
+    *{box-sizing:border-box} body{margin:0;font-family:Inter,ui-rounded,system-ui,-apple-system,Segoe UI,sans-serif;background:linear-gradient(180deg,#f4f2ff,var(--bg));color:var(--ink);min-height:100vh}
+    .wrap{max-width:640px;margin:0 auto;padding:20px 16px 40px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}.brand{font-size:25px;font-weight:900;letter-spacing:-.03em}.nick{font-size:13px;background:#fff;border:1px solid var(--line);padding:8px 10px;border-radius:999px;font-weight:700}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:26px;box-shadow:0 12px 35px rgba(39,34,90,.08);padding:22px}.join h1{font-size:30px;margin:0 0 8px}.join p{color:var(--muted);margin:0 0 18px}.joinrow{display:flex;gap:10px}.code{width:100%;font-size:24px;text-transform:uppercase;letter-spacing:.15em;text-align:center;font-weight:900;padding:14px;border:2px solid var(--line);border-radius:16px;outline:none}.code:focus{border-color:var(--accent)}button{font:inherit;cursor:pointer}.primary{border:0;border-radius:16px;background:var(--accent);color:white;font-weight:900;padding:0 20px}.primary:disabled{opacity:.5;cursor:not-allowed}
+    .hidden{display:none!important}.status{margin-top:12px;font-size:14px;color:var(--muted);min-height:20px}.status.err{color:var(--danger)}
+    .sessionbar{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:13px;margin-bottom:10px}.roomcode{font-weight:900;color:var(--ink);letter-spacing:.12em}
+    .visual{font-size:88px;line-height:1;text-align:center;margin:16px 0 10px;filter:drop-shadow(0 10px 15px rgba(0,0,0,.08))}.qno{text-align:center;color:var(--muted);font-weight:800;font-size:13px}.question{text-align:center;font-size:31px;line-height:1.12;letter-spacing:-.035em;margin:10px auto 24px;max-width:520px}
+    .choices{display:grid;gap:10px}.choice{border:2px solid var(--line);background:#fff;border-radius:18px;padding:14px 16px;display:flex;align-items:center;gap:14px;text-align:left;font-weight:850;font-size:18px;transition:.15s transform,.15s border-color,.15s background}.choice:hover{transform:translateY(-1px);border-color:#cbc9ff}.choice .ico{font-size:26px;width:34px;text-align:center}.choice.selected{border-color:var(--accent);background:#f0efff}.voted{margin:15px 0 0;text-align:center;color:var(--ok);font-weight:850;min-height:24px}.waiting{text-align:center;padding:28px 4px}.waiting .big{font-size:54px}.waiting h2{font-size:26px;margin:10px 0 6px}.waiting p{color:var(--muted);margin:0}
+    @media(max-width:520px){.joinrow{flex-direction:column}.primary{padding:14px}.question{font-size:27px}.choice{font-size:17px}.visual{font-size:76px}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><div class="brand">¡VOTA! 🇪🇸</div><div class="nick" id="nickBadge">…</div></div>
+
+  <section class="card join" id="joinCard">
+    <h1>¡Hola! 👋</h1>
+    <p>Escribe el código de la clase.</p>
+    <div class="joinrow">
+      <input id="roomInput" class="code" maxlength="6" inputmode="numeric" placeholder="123456" aria-label="Código de clase" />
+      <button class="primary" id="joinBtn">Entrar</button>
+    </div>
+    <div class="status" id="joinStatus"></div>
+  </section>
+
+  <main class="hidden" id="game">
+    <div class="sessionbar"><span>Clase <span class="roomcode" id="roomLabel"></span></span><span id="connectionText">conectando…</span></div>
+    <section class="card" id="questionCard">
+      <div class="qno" id="qno"></div>
+      <div class="visual" id="visual"></div>
+      <h1 class="question" id="question"></h1>
+      <div class="choices" id="choices"></div>
+      <div class="voted" id="votedText"></div>
+    </section>
+    <section class="card waiting hidden" id="finishedCard">
+      <div class="big">🎉</div><h2>¡Terminamos!</h2><p>Muy bien. Has votado en toda la ronda.</p>
+    </section>
+  </main>
+</div>
+
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js';
+  import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js';
+  import { getDatabase, ref, get, set, onValue, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js';
+  import { firebaseConfig, isFirebaseConfigured } from './firebase-config.js';
+  import { QUESTIONS, RATINGS, NICKNAMES } from './questions.js';
+
+  const $ = s => document.querySelector(s);
+  const joinCard=$('#joinCard'), game=$('#game'), roomInput=$('#roomInput'), joinBtn=$('#joinBtn'), joinStatus=$('#joinStatus');
+  const nickBadge=$('#nickBadge'), roomLabel=$('#roomLabel'), connectionText=$('#connectionText'), qno=$('#qno'), visual=$('#visual'), question=$('#question'), choices=$('#choices'), votedText=$('#votedText'), questionCard=$('#questionCard'), finishedCard=$('#finishedCard');
+
+  function getNick(){
+    let nick=localStorage.getItem('vota_a1_nick');
+    if(!nick){ nick=NICKNAMES[Math.floor(Math.random()*NICKNAMES.length)]; localStorage.setItem('vota_a1_nick',nick); }
+    return nick;
+  }
+  const nickname=getNick(); nickBadge.textContent=nickname;
+
+  if(!isFirebaseConfigured){
+    joinStatus.textContent='Najpierw uzupełnij firebase-config.js — instrukcja jest w README.md.'; joinStatus.classList.add('err'); joinBtn.disabled=true;
+  }
+
+  const params=new URLSearchParams(location.search); if(params.get('room')) roomInput.value=params.get('room').slice(0,6);
+
+  let app,auth,db,user,roomCode,currentIndex=0,stateUnsub=null;
+  if(isFirebaseConfigured){ app=initializeApp(firebaseConfig); auth=getAuth(app); db=getDatabase(app); signInAnonymously(auth).catch(err=>showErr(err.message)); }
+
+  onAuthStateChangedSafe(async u=>{ user=u; if(user && roomInput.value.length>=4 && params.get('room')) await joinRoom(); });
+  function onAuthStateChangedSafe(cb){ if(isFirebaseConfigured) onAuthStateChanged(auth,cb); }
+  function showErr(msg){ joinStatus.textContent=msg; joinStatus.classList.add('err'); }
+
+  joinBtn.addEventListener('click',joinRoom); roomInput.addEventListener('keydown',e=>{if(e.key==='Enter')joinRoom()});
+
+  async function joinRoom(){
+    if(!user){ showErr('Conectando… prueba otra vez en un segundo.'); return; }
+    const code=roomInput.value.replace(/\D/g,'').slice(0,6); roomInput.value=code;
+    if(code.length<4){ showErr('Escribe el código de la clase.'); return; }
+    joinBtn.disabled=true; joinStatus.classList.remove('err'); joinStatus.textContent='Buscando la clase…';
+    try{
+      const hostSnap=await get(ref(db,`rooms/${code}/hostUid`));
+      if(!hostSnap.exists()) throw new Error('No encuentro esta clase. Comprueba el código.');
+      const closedSnap=await get(ref(db,`rooms/${code}/state/closed`));
+      if(closedSnap.val()===true) throw new Error('Esta clase ya está cerrada.');
+      roomCode=code;
+      await set(ref(db,`rooms/${code}/participants/${user.uid}`),{nick:nickname,joinedAt:serverTimestamp()});
+      roomLabel.textContent=code; joinCard.classList.add('hidden'); game.classList.remove('hidden'); connectionText.textContent='conectado ✓';
+      subscribeState();
+    }catch(e){ showErr(e.message); joinBtn.disabled=false; }
+  }
+
+  function subscribeState(){
+    if(stateUnsub) stateUnsub();
+    stateUnsub=onValue(ref(db,`rooms/${roomCode}/state`),async snap=>{
+      const state=snap.val(); if(!state) return;
+      if(state.closed){ questionCard.classList.add('hidden'); finishedCard.classList.remove('hidden'); return; }
+      currentIndex=Number(state.currentIndex||0);
+      if(currentIndex>=QUESTIONS.length){ questionCard.classList.add('hidden'); finishedCard.classList.remove('hidden'); return; }
+      finishedCard.classList.add('hidden'); questionCard.classList.remove('hidden');
+      await renderQuestion(currentIndex);
+    },()=>connectionText.textContent='sin conexión');
+  }
+
+  async function renderQuestion(index){
+    const item=QUESTIONS[index]; qno.textContent=`${index+1} / ${QUESTIONS.length}`; visual.textContent=item.visual; question.textContent=item.question; votedText.textContent='';
+    choices.innerHTML='';
+    let myVote=null;
+    try{ const s=await get(ref(db,`rooms/${roomCode}/votes/${index}/${user.uid}`)); if(s.exists()) myVote=Number(s.val()); }catch{}
+    RATINGS.forEach(r=>{
+      const b=document.createElement('button'); b.className='choice'+(r.value===myVote?' selected':''); b.dataset.value=r.value;
+      b.innerHTML=`<span class="ico">${r.icon}</span><span>${r.label}</span>`;
+      b.addEventListener('click',()=>castVote(index,r.value,b)); choices.appendChild(b);
+    });
+    if(myVote!==null) votedText.textContent='Tu voto está guardado ✓';
+  }
+
+  async function castVote(index,value,button){
+    if(index!==currentIndex) return;
+    [...choices.children].forEach(x=>x.disabled=true);
+    try{
+      await set(ref(db,`rooms/${roomCode}/votes/${index}/${user.uid}`),value);
+      [...choices.children].forEach(x=>x.classList.toggle('selected',Number(x.dataset.value)===value));
+      votedText.textContent='Tu voto está guardado ✓';
+    }catch(e){ votedText.textContent='No se ha podido guardar. Inténtalo otra vez.'; }
+    finally{ [...choices.children].forEach(x=>x.disabled=false); }
+  }
+</script>
+</body>
+</html>
