@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Profesor · Torneo Música B1</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap');
+:root{--bg:#07111f;--card:#101d31;--line:#29415f;--text:#f7f9fc;--muted:#9eb0c5;--accent:#ffcf4a;--ok:#38d996;--bad:#ff6474;}
+*{box-sizing:border-box} body{margin:0;min-height:100vh;font-family:Poppins,sans-serif;color:var(--text);background:
+radial-gradient(circle at 10% 10%,#7038b850,transparent 32%),
+radial-gradient(circle at 90% 20%,#e14e8550,transparent 28%),
+linear-gradient(145deg,#08111e,#111a32 55%,#07111f);padding:24px}
+.wrap{width:min(1180px,100%);margin:auto} .top{display:flex;justify-content:space-between;gap:15px;align-items:center;margin-bottom:18px}
+.brand{font-weight:900;font-size:clamp(22px,3vw,34px)} .pill{border:1px solid var(--line);background:#0b1829;padding:8px 12px;border-radius:999px;color:#c8d5e4;font-weight:700}
+.card{background:#0d1a2ddd;border:1px solid var(--line);border-radius:24px;padding:24px;box-shadow:0 24px 70px #0008;backdrop-filter:blur(9px)}
+.hidden{display:none!important} .center{text-align:center} button{font:inherit;font-weight:900;border:0;border-radius:15px;padding:13px 18px;cursor:pointer;background:var(--accent);color:#162033}
+button:disabled{opacity:.45;cursor:not-allowed} .secondary{background:#1a2b45;color:white;border:1px solid #385270} .danger{background:#ff6474;color:white}
+.hero{padding:34px 24px} .hero h1{font-size:clamp(32px,6vw,66px);margin:0 0 8px} .muted{color:var(--muted)}
+.code{font-size:clamp(50px,10vw,105px);font-weight:900;letter-spacing:.08em;color:var(--accent);line-height:1.05}
+.joinlink{margin:12px auto 18px;max-width:760px;background:#061120;border:1px solid #2c4767;border-radius:15px;padding:12px;word-break:break-all;color:#b8d3ed;font-size:13px}
+.actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap} .players{display:flex;gap:9px;flex-wrap:wrap;justify-content:center;margin:20px 0}
+.player{background:#14253c;border:1px solid #355171;border-radius:999px;padding:8px 12px;font-weight:700} .count{font-size:14px;color:var(--muted)}
+.gamegrid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(300px,.75fr);gap:18px} .qhead{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:12px}
+.category{font-weight:800;color:var(--accent)} .qnum{color:var(--muted);font-weight:700} .question{font-weight:900;font-size:clamp(26px,4vw,48px);line-height:1.16;margin:12px 0 22px}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:12px} .ans{min-height:116px;border-radius:18px;padding:18px;display:flex;align-items:center;font-weight:900;font-size:clamp(17px,2vw,24px);border:3px solid transparent;transition:.2s}
+.ans:nth-child(1){background:#d73d55}.ans:nth-child(2){background:#2576d2}.ans:nth-child(3){background:#cf9b16}.ans:nth-child(4){background:#2d9b61}
+.ans.correct{border-color:white;box-shadow:0 0 0 4px #38d99655,0 0 40px #38d99666} .ans.dim{opacity:.34}
+.timerrow{display:flex;align-items:center;gap:14px;margin:4px 0 18px} .timer{width:70px;height:70px;border-radius:50%;display:grid;place-items:center;background:#06101e;border:6px solid var(--accent);font-size:25px;font-weight:900}
+.bar{height:14px;background:#07111e;border-radius:999px;overflow:hidden;flex:1;border:1px solid #243d5b} .bar>div{height:100%;background:linear-gradient(90deg,#ffcf4a,#ff7c64);width:100%;transition:width .1s linear}
+.responses{font-weight:800;color:#c9d8e9;white-space:nowrap} .side h3{margin:0 0 12px} table{width:100%;border-collapse:collapse} td,th{padding:9px 5px;border-bottom:1px solid #263d58;text-align:left} td:last-child,th:last-child{text-align:right}
+.fact{margin-top:18px;border-left:5px solid var(--accent);background:#101f34;padding:13px 15px;border-radius:10px;line-height:1.5} .roundstats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:12px 0}
+.stat{background:#091527;border:1px solid #294362;border-radius:14px;padding:12px;text-align:center} .stat strong{display:block;font-size:25px}
+.final h2{font-size:46px;margin:5px 0 20px} .podium{display:flex;align-items:end;justify-content:center;gap:12px;min-height:250px;margin:20px 0}
+.pod{width:29%;max-width:220px;background:#13253d;border:1px solid #385a7e;border-radius:20px 20px 10px 10px;text-align:center;padding:18px 8px;font-weight:900} .p1{min-height:220px}.p2{min-height:175px}.p3{min-height:145px}
+.sources{margin-top:22px;font-size:12px;color:#8fa4bb;line-height:1.55} details summary{cursor:pointer;font-weight:800;color:#b9cbe0}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#fff;color:#142033;padding:10px 16px;border-radius:999px;font-weight:800;box-shadow:0 12px 35px #0008;opacity:0;pointer-events:none;transition:.2s} .toast.show{opacity:1}
+@media(max-width:800px){body{padding:12px}.gamegrid{grid-template-columns:1fr}.answers{grid-template-columns:1fr}.ans{min-height:78px}.top{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><div class="brand">🎵 TORNEO MUSICAL B1</div><div class="pill">Profesor · 10 s por pregunta</div></div>
+
+  <section class="card hero center" id="setup">
+    <div class="muted">MULTIJUGADOR · FIREBASE</div>
+    <h1>¿Quién sabe más de música?</h1>
+    <p class="muted">12 preguntas · 4 opciones · 1 correcta · cuanto más rápido, más puntos.</p>
+    <button id="createBtn">Crear partida</button>
+    <div id="setupStatus" class="muted" style="margin-top:12px"></div>
+  </section>
+
+  <section class="card hero center hidden" id="lobby">
+    <div class="muted">CÓDIGO DE LA PARTIDA</div>
+    <div class="code" id="roomCode">------</div>
+    <div class="joinlink" id="joinLink"></div>
+    <div class="actions">
+      <button class="secondary" id="copyBtn">Copiar enlace para alumnos</button>
+      <button id="startBtn" disabled>Empezar torneo</button>
+    </div>
+    <div class="players" id="players"></div>
+    <div class="count" id="playerCount">0 jugadores conectados</div>
+  </section>
+
+  <section class="hidden" id="game">
+    <div class="gamegrid">
+      <div class="card">
+        <div class="qhead"><span class="category" id="category"></span><span class="qnum" id="qnum"></span></div>
+        <div class="question" id="question"></div>
+        <div class="timerrow">
+          <div class="timer" id="timer">10</div>
+          <div class="bar"><div id="timebar"></div></div>
+          <div class="responses" id="responses">0/0 respuestas</div>
+        </div>
+        <div class="answers" id="answers"></div>
+        <div class="fact hidden" id="fact"></div>
+        <div class="actions" style="margin-top:18px">
+          <button class="hidden" id="nextBtn">Siguiente pregunta →</button>
+        </div>
+      </div>
+
+      <aside class="card side">
+        <h3>🏆 Clasificación</h3>
+        <table><thead><tr><th>#</th><th>Jugador</th><th>Puntos</th></tr></thead><tbody id="leaderboard"></tbody></table>
+        <div class="roundstats hidden" id="roundStats">
+          <div class="stat"><strong id="correctCount">0</strong><span class="muted">correctas</span></div>
+          <div class="stat"><strong id="fastest">—</strong><span class="muted">más rápido</span></div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="card final center hidden" id="final">
+    <div class="muted">RESULTADO FINAL</div>
+    <h2>🏆 Podio musical</h2>
+    <div class="podium" id="podium"></div>
+    <table style="max-width:700px;margin:auto"><thead><tr><th>#</th><th>Jugador</th><th>Aciertos</th><th>Puntos</th></tr></thead><tbody id="finalTable"></tbody></table>
+    <div class="actions" style="margin-top:24px"><button id="newBtn">Nueva partida</button></div>
+  </section>
+
+  <div class="sources">
+    <details>
+      <summary>Fuentes del contenido del quiz</summary>
+      Billboard, Latin Streaming Songs (semana del 15 de agosto de 2026); Billboard, Premio Lo Nuestro 2026;
+      UNESCO Patrimonio Cultural Inmaterial: Flamenco, Tango, Mariachi, Bachata, Merengue y Vallenato;
+      The Latin Recording Academy / GRAMMY: Latin GRAMMY Sevilla 2023 y materiales sobre Rosalía.
+      Datos de actualidad comprobados el 18 de agosto de 2026.
+    </details>
+  </div>
+</div>
+<div class="toast" id="toast">Copiado</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js';
+import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js';
+import { getDatabase, ref, get, set, update, onValue, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js';
+import { firebaseConfig } from './firebase-config.js';
+
+const QUESTIONS = [
+  {
+    "category": "Actualidad 2026",
+    "question": "¿Quién ocupa cuatro de las cinco primeras posiciones de Latin Streaming Songs en la semana del 15 de agosto de 2026?",
+    "options": [
+      "Rauw Alejandro",
+      "Bad Bunny",
+      "Feid",
+      "Myke Towers"
+    ],
+    "correct": 1,
+    "fact": "Bad Bunny ocupaba cuatro puestos del Top 5: DTMF, EOO, Baile Inolvidable y Nuevayol."
+  },
+  {
+    "category": "Actualidad 2026",
+    "question": "¿De quién es «Matadora», que aparece en el Top 5 de Latin Streaming Songs?",
+    "options": [
+      "Karol G",
+      "Shakira",
+      "Rosalía",
+      "Nathy Peluso"
+    ],
+    "correct": 0,
+    "fact": "«Matadora» es de Karol G y figuraba entre las canciones latinas más escuchadas del momento."
+  },
+  {
+    "category": "Actualidad 2026",
+    "question": "¿Quién ganó más premios en Premio Lo Nuestro 2026?",
+    "options": [
+      "Carín León",
+      "Rauw Alejandro",
+      "Bad Bunny",
+      "Karol G"
+    ],
+    "correct": 2,
+    "fact": "Bad Bunny ganó 6 premios; Carín León fue el segundo gran ganador de la noche con 5."
+  },
+  {
+    "category": "España · Flamenco",
+    "question": "¿Qué región española se considera la cuna o el principal territorio del flamenco?",
+    "options": [
+      "Galicia",
+      "Andalucía",
+      "Cataluña",
+      "País Vasco"
+    ],
+    "correct": 1,
+    "fact": "Andalucía es el principal territorio del flamenco, aunque también tiene raíces en Murcia y Extremadura."
+  },
+  {
+    "category": "España · Flamenco",
+    "question": "Según la terminología tradicional, ¿cuáles son los tres elementos básicos del flamenco?",
+    "options": [
+      "Cante, baile y toque",
+      "Voz, guitarra y palmas",
+      "Copla, danza y cajón",
+      "Ritmo, letra y melodía"
+    ],
+    "correct": 0,
+    "fact": "UNESCO describe el flamenco como la unión del cante, el baile y el toque."
+  },
+  {
+    "category": "España · Cultura musical",
+    "question": "¿Qué ciudad española acogió en 2023 los primeros Latin GRAMMY celebrados fuera de Estados Unidos?",
+    "options": [
+      "Madrid",
+      "Barcelona",
+      "Sevilla",
+      "Málaga"
+    ],
+    "correct": 2,
+    "fact": "La ceremonia de 2023 se celebró en Sevilla y fue la primera edición de los Latin GRAMMY fuera de Estados Unidos."
+  },
+  {
+    "category": "España · Música actual",
+    "question": "¿Qué artista española se ha hecho mundialmente conocida por mezclar influencias del flamenco con pop y sonidos urbanos?",
+    "options": [
+      "Aitana",
+      "Rosalía",
+      "Lola Índigo",
+      "Amaia"
+    ],
+    "correct": 1,
+    "fact": "Rosalía ha combinado referencias flamencas con pop, música urbana y producción experimental."
+  },
+  {
+    "category": "Patrimonio musical",
+    "question": "¿Qué género es una tradición cultural compartida históricamente por Argentina y Uruguay?",
+    "options": [
+      "Salsa",
+      "Tango",
+      "Bachata",
+      "Vallenato"
+    ],
+    "correct": 1,
+    "fact": "El tango se desarrolló especialmente en Buenos Aires y Montevideo y está reconocido por UNESCO como tradición argentina y uruguaya."
+  },
+  {
+    "category": "México",
+    "question": "¿Qué tradición musical mexicana reconocida por UNESCO combina música de cuerdas, canto y trompeta?",
+    "options": [
+      "Son cubano",
+      "Mariachi",
+      "Cumbia",
+      "Bolero"
+    ],
+    "correct": 1,
+    "fact": "El mariachi es una de las tradiciones musicales mexicanas más reconocibles y forma parte del Patrimonio Cultural Inmaterial."
+  },
+  {
+    "category": "Caribe",
+    "question": "¿Con qué país se identifica el origen de la bachata?",
+    "options": [
+      "Cuba",
+      "Puerto Rico",
+      "República Dominicana",
+      "Colombia"
+    ],
+    "correct": 2,
+    "fact": "La bachata es una expresión musical y de baile de la República Dominicana; UNESCO la inscribió en su lista representativa en 2019."
+  },
+  {
+    "category": "Colombia",
+    "question": "¿Con qué país se asocia especialmente el vallenato tradicional de la región del Magdalena Grande?",
+    "options": [
+      "Colombia",
+      "México",
+      "Chile",
+      "España"
+    ],
+    "correct": 0,
+    "fact": "El vallenato tradicional procede del norte de Colombia, especialmente de la región del Magdalena Grande."
+  },
+  {
+    "category": "Caribe",
+    "question": "¿Qué otro género dominicano, además de la bachata, está reconocido por UNESCO como música y danza tradicional?",
+    "options": [
+      "Flamenco",
+      "Merengue",
+      "Tango",
+      "Reguetón"
+    ],
+    "correct": 1,
+    "fact": "El merengue es parte fundamental de la identidad musical dominicana y también figura en la lista de Patrimonio Cultural Inmaterial."
+  }
+];
+const DURATION = 10000;
+const $ = s => document.querySelector(s);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+let user=null, code=null, participants={}, scores={}, serverOffset=0, currentIndex=-1;
+let timerLoop=null, answerUnsub=null, revealLock=false, answersNow={};
+
+onValue(ref(db,'.info/serverTimeOffset'),s=>serverOffset=Number(s.val()||0));
+signInAnonymously(auth).catch(e=>$('#setupStatus').textContent='Firebase: '+e.message);
+onAuthStateChanged(auth,u=>{user=u;$('#createBtn').disabled=!u});
+
+$('#createBtn').onclick=createRoom;
+$('#startBtn').onclick=()=>startQuestion(0,2500);
+$('#nextBtn').onclick=()=>{
+  if(currentIndex+1<QUESTIONS.length) startQuestion(currentIndex+1,1400);
+  else finishQuiz();
+};
+$('#copyBtn').onclick=copyJoinLink;
+$('#newBtn').onclick=()=>location.reload();
+
+function nowServer(){return Date.now()+serverOffset}
+function roomRef(path=''){return ref(db,`tournaments/${code}${path?'/'+path:''}`)}
+function esc(x){return String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+
+async function createRoom(){
+  if(!user)return;
+  $('#createBtn').disabled=true; $('#setupStatus').textContent='Creando la partida…';
+  try{
+    let tries=0;
+    do{
+      code=String(Math.floor(100000+Math.random()*900000));
+      const s=await get(ref(db,`tournaments/${code}/hostUid`));
+      if(!s.exists())break;
+      tries++;
+    }while(tries<15);
+    if(tries>=15)throw Error('No he podido generar un código libre.');
+    await set(roomRef(),{
+      hostUid:user.uid,
+      kind:'music_b1_2026',
+      createdAt:serverTimestamp(),
+      meta:{title:'Torneo musical B1',questionCount:QUESTIONS.length,durationMs:DURATION},
+      state:{status:'lobby',phase:'lobby',qIndex:-1}
+    });
+    subscribeRoom();
+    $('#setup').classList.add('hidden'); $('#lobby').classList.remove('hidden');
+    $('#roomCode').textContent=code;
+    const u=new URL('quiz-musica-alumno.html',location.href);u.searchParams.set('room',code);
+    $('#joinLink').textContent=u.href;
+  }catch(e){
+    $('#setupStatus').textContent=e.message; $('#createBtn').disabled=false;
+  }
+}
+
+function subscribeRoom(){
+  onValue(roomRef('participants'),s=>{
+    participants=s.val()||{};
+    renderPlayers();
+  });
+  onValue(roomRef('scores'),s=>{
+    scores=s.val()||{};
+    renderLeaderboard();
+  });
+}
+
+function renderPlayers(){
+  const arr=Object.values(participants);
+  $('#players').innerHTML=arr.map(p=>`<span class="player">🎧 ${esc(p.nick)}</span>`).join('');
+  $('#playerCount').textContent=`${arr.length} ${arr.length===1?'jugador conectado':'jugadores conectados'}`;
+  $('#startBtn').disabled=arr.length<1;
+}
+
+async function startQuestion(index,delay=1400){
+  if(timerLoop)clearInterval(timerLoop);
+  if(answerUnsub){answerUnsub();answerUnsub=null}
+  revealLock=false; answersNow={}; currentIndex=index;
+  $('#lobby').classList.add('hidden'); $('#final').classList.add('hidden'); $('#game').classList.remove('hidden');
+  $('#fact').classList.add('hidden'); $('#nextBtn').classList.add('hidden'); $('#roundStats').classList.add('hidden');
+  const q=QUESTIONS[index];
+  const startAt=nowServer()+delay;
+  await update(roomRef(),{
+    currentQuestion:{category:q.category,question:q.question,options:q.options},
+    reveal:null,
+    state:{status:'playing',phase:'question',qIndex:index,questionStartAt:startAt,durationMs:DURATION}
+  });
+  renderQuestion(q,index,startAt);
+  answerUnsub=onValue(roomRef(`answers/${index}`),s=>{
+    answersNow=s.val()||{};
+    $('#responses').textContent=`${Object.keys(answersNow).length}/${Object.keys(participants).length} respuestas`;
+  });
+}
+
+function renderQuestion(q,index,startAt){
+  $('#category').textContent=q.category; $('#qnum').textContent=`Pregunta ${index+1} / ${QUESTIONS.length}`;
+  $('#question').textContent=q.question;
+  $('#answers').innerHTML=q.options.map((o,i)=>`<div class="ans" data-i="${i}"><span>${['▲','◆','●','■'][i]}&nbsp;&nbsp;${esc(o)}</span></div>`).join('');
+  $('#responses').textContent=`0/${Object.keys(participants).length} respuestas`;
+  tick();
+  timerLoop=setInterval(tick,80);
+  function tick(){
+    const remain=startAt+DURATION-nowServer();
+    const before=startAt-nowServer();
+    if(before>0){
+      $('#timer').textContent=Math.max(1,Math.ceil(before/1000));
+      $('#timebar').style.width='100%';
+      return;
+    }
+    $('#timer').textContent=Math.max(0,Math.ceil(remain/1000));
+    $('#timebar').style.width=`${Math.max(0,Math.min(100,remain/DURATION*100))}%`;
+    if(remain<=0){
+      clearInterval(timerLoop);timerLoop=null;
+      revealRound(index,startAt).catch(console.error);
+    }
+  }
+}
+
+async function revealRound(index,startAt){
+  if(revealLock)return; revealLock=true;
+  if(answerUnsub){answerUnsub();answerUnsub=null}
+  const q=QUESTIONS[index];
+  const ans=(await get(roomRef(`answers/${index}`))).val()||{};
+  const currentScores=(await get(roomRef('scores'))).val()||{};
+  const updates={};
+  let correctCount=0,fastestName='—',fastestMs=Infinity;
+
+  for(const [uid,p] of Object.entries(participants)){
+    const a=ans[uid]||null;
+    const prev=currentScores[uid]||{score:0,correct:0,total:0,nick:p.nick};
+    let pts=0,ok=false,ms=null;
+    if(a && Number.isInteger(a.optionIndex)){
+      ok=a.optionIndex===q.correct;
+      ms=Math.max(0,Math.min(DURATION,Number(a.answeredAt||startAt+DURATION)-startAt));
+      if(ok){
+        correctCount++;
+        pts=Math.max(100,Math.round(1000*(1-ms/DURATION)));
+        if(ms<fastestMs){fastestMs=ms;fastestName=p.nick}
+      }
+    }
+    updates[`scores/${uid}`]={
+      nick:p.nick,score:Number(prev.score||0)+pts,correct:Number(prev.correct||0)+(ok?1:0),
+      total:Number(prev.total||0)+1,lastPoints:pts,lastCorrect:ok,lastRound:index
+    };
+  }
+  updates.reveal={correctIndex:q.correct,fact:q.fact,correctCount,fastestName};
+  updates.state={status:'playing',phase:'reveal',qIndex:index,questionStartAt:startAt,durationMs:DURATION};
+  await update(roomRef(),updates);
+
+  document.querySelectorAll('.ans').forEach(el=>{
+    const i=Number(el.dataset.i);
+    el.classList.toggle('correct',i===q.correct);
+    el.classList.toggle('dim',i!==q.correct);
+  });
+  $('#fact').innerHTML=`<strong>💡 Para recordar:</strong> ${esc(q.fact)}`;
+  $('#fact').classList.remove('hidden');
+  $('#correctCount').textContent=correctCount;
+  $('#fastest').textContent=fastestName;
+  $('#roundStats').classList.remove('hidden');
+  $('#nextBtn').textContent=index+1<QUESTIONS.length?'Siguiente pregunta →':'Ver clasificación final 🏆';
+  $('#nextBtn').classList.remove('hidden');
+}
+
+function sortedScores(){
+  return Object.values(scores).sort((a,b)=>Number(b.score||0)-Number(a.score||0)||Number(b.correct||0)-Number(a.correct||0));
+}
+function renderLeaderboard(){
+  const arr=sortedScores();
+  const all={...participants};
+  const rows=Object.entries(all).map(([uid,p])=>scores[uid]||{nick:p.nick,score:0,correct:0,total:0})
+    .sort((a,b)=>Number(b.score||0)-Number(a.score||0)||Number(b.correct||0)-Number(a.correct||0));
+  $('#leaderboard').innerHTML=rows.slice(0,10).map((r,i)=>`<tr><td>${i<3?['🥇','🥈','🥉'][i]:i+1}</td><td><strong>${esc(r.nick)}</strong></td><td><strong>${Number(r.score||0)}</strong></td></tr>`).join('');
+}
+
+async function finishQuiz(){
+  if(timerLoop)clearInterval(timerLoop);
+  await update(roomRef('state'),{status:'finished',phase:'finished',qIndex:currentIndex});
+  $('#game').classList.add('hidden');$('#final').classList.remove('hidden');
+  const snap=(await get(roomRef('scores'))).val()||{};scores=snap;
+  const arr=sortedScores();
+  const podiumOrder=[1,0,2].filter(i=>arr[i]);
+  $('#podium').innerHTML=podiumOrder.map(i=>{
+    const r=arr[i],cls=i===0?'p1':i===1?'p2':'p3',medal=['🥇','🥈','🥉'][i];
+    return `<div class="pod ${cls}"><div style="font-size:38px">${medal}</div><div>${esc(r.nick)}</div><div style="color:var(--accent);font-size:25px">${r.score}</div></div>`;
+  }).join('');
+  $('#finalTable').innerHTML=arr.map((r,i)=>`<tr><td>${i+1}</td><td><strong>${esc(r.nick)}</strong></td><td>${r.correct}/${r.total}</td><td><strong>${r.score}</strong></td></tr>`).join('');
+}
+
+async function copyJoinLink(){
+  try{await navigator.clipboard.writeText($('#joinLink').textContent);toast('Enlace copiado')}catch{toast('Copia el enlace de la pantalla')}
+}
+function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1500)}
+</script>
+</body>
+</html>
