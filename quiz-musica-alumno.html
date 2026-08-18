@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<title>Alumno · Torneo Música B1</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap');
+:root{--bg:#07111f;--card:#0e1c30;--line:#29415f;--text:#f7f9fc;--muted:#9eb0c5;--accent:#ffcf4a;--ok:#38d996;--bad:#ff6474}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}body{margin:0;min-height:100svh;font-family:Poppins,sans-serif;color:var(--text);background:
+radial-gradient(circle at 10% 0,#7038b84d,transparent 33%),radial-gradient(circle at 100% 20%,#dd4d8344,transparent 28%),linear-gradient(145deg,#08111e,#101a31 55%,#07111f);padding:14px;overscroll-behavior:none}
+.wrap{width:min(720px,100%);margin:auto}.top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:3px 0 12px}.brand{font-weight:900;font-size:20px}.pill{font-size:11px;background:#09172a;border:1px solid var(--line);border-radius:999px;padding:6px 9px;color:#bfd0e1;font-weight:800}
+.card{background:#0d1a2df0;border:1px solid var(--line);border-radius:22px;padding:19px;box-shadow:0 22px 55px #0008}.hidden{display:none!important}.center{text-align:center}.muted{color:var(--muted)}
+input{width:100%;font:inherit;border:1px solid #375574;background:#06111f;color:white;border-radius:15px;padding:13px 14px;margin:6px 0 10px;font-size:18px;outline:none}#roomInput{text-align:center;font-size:30px;letter-spacing:.12em;font-weight:900}
+button{width:100%;font:inherit;font-weight:900;border:0;border-radius:15px;padding:14px;cursor:pointer;background:var(--accent);color:#162033}button:disabled{opacity:.55}
+.waitIcon{font-size:70px;animation:pulse 1.2s infinite alternate}@keyframes pulse{to{transform:scale(1.1);filter:brightness(1.35)}}.nickbig{font-size:30px;font-weight:900;color:var(--accent)}
+.qtop{display:flex;align-items:center;justify-content:space-between;gap:8px}.category{font-size:12px;font-weight:900;color:var(--accent);text-transform:uppercase}.qnum{font-size:12px;color:var(--muted);font-weight:700}
+.question{font-size:clamp(22px,6vw,34px);font-weight:900;line-height:1.18;margin:13px 0 15px}.timerrow{display:flex;align-items:center;gap:10px;margin:4px 0 13px}.timer{width:58px;height:58px;flex:0 0 58px;border-radius:50%;display:grid;place-items:center;border:5px solid var(--accent);background:#06101e;font-weight:900;font-size:22px}
+.bar{height:11px;background:#07111e;border-radius:999px;overflow:hidden;flex:1;border:1px solid #243d5b}.bar>div{height:100%;width:100%;background:linear-gradient(90deg,#ffcf4a,#ff7c64)}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:10px}.answerBtn{border:0;min-height:125px;padding:13px;border-radius:18px;color:white;text-align:left;font-size:clamp(16px,4.2vw,21px);line-height:1.25;font-weight:900;box-shadow:0 8px 18px #0005;touch-action:manipulation;transition:transform .08s,opacity .15s,border .15s}
+.answerBtn:active{transform:scale(.97)}.answerBtn:nth-child(1){background:#d73d55}.answerBtn:nth-child(2){background:#2576d2}.answerBtn:nth-child(3){background:#cf9b16}.answerBtn:nth-child(4){background:#2d9b61}
+.answerBtn.locked{opacity:.42}.answerBtn.chosen{opacity:1;border:4px solid white}.answerBtn.correct{opacity:1;border:4px solid var(--ok);box-shadow:0 0 25px #38d99666}.answerBtn.wrong{opacity:1;border:4px solid var(--bad)}
+.status{min-height:26px;margin:11px 0 0;font-weight:800;text-align:center}.resultBox{margin-top:14px;background:#071526;border:1px solid #2d4969;border-radius:17px;padding:16px;text-align:center}.points{font-size:54px;font-weight:900;color:var(--accent);line-height:1}.fact{margin-top:12px;text-align:left;border-left:4px solid var(--accent);padding:10px 12px;background:#101f34;border-radius:9px;font-size:14px;line-height:1.45}
+table{width:100%;border-collapse:collapse;margin-top:15px}td,th{padding:8px 5px;border-bottom:1px solid #263d58;text-align:left;font-size:13px}td:last-child,th:last-child{text-align:right}.me{color:var(--accent)}
+.finalTitle{font-size:33px;font-weight:900}.place{font-size:74px;line-height:1}.score{font-size:48px;font-weight:900;color:var(--accent)}
+.prep{position:fixed;inset:0;z-index:20;background:#06101ff2;display:grid;place-items:center;text-align:center}.prepNum{font-size:min(40vw,180px);font-weight:900;color:var(--accent);text-shadow:0 0 40px #ffcf4a77}
+@media(max-width:480px){body{padding:8px}.card{padding:14px;border-radius:18px}.answers{gap:7px}.answerBtn{min-height:105px;padding:10px}.question{margin:10px 0 12px}.top{margin-bottom:8px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><div class="brand">🎵 MÚSICA B1</div><div class="pill" id="nickPill">Jugador</div></div>
+
+  <section class="card" id="join">
+    <h2 style="margin-top:0">Entra en el torneo</h2>
+    <label class="muted">Código de 6 cifras</label><input id="roomInput" inputmode="numeric" maxlength="6" placeholder="000000">
+    <label class="muted">Tu nombre / apodo</label><input id="nickInput" maxlength="22" placeholder="Ej. Marta">
+    <button id="joinBtn">Entrar</button>
+    <div class="status muted" id="joinStatus"></div>
+  </section>
+
+  <section class="card center hidden" id="waiting">
+    <div class="waitIcon">🎧</div><div class="muted">ESTÁS DENTRO COMO</div><div class="nickbig" id="waitNick"></div>
+    <p class="muted" style="margin-bottom:0">Esperando a que el profesor empiece…</p>
+  </section>
+
+  <section class="card hidden" id="game">
+    <div class="qtop"><span class="category" id="category"></span><span class="qnum" id="qnum"></span></div>
+    <div class="question" id="question"></div>
+    <div class="timerrow"><div class="timer" id="timer">10</div><div class="bar"><div id="timebar"></div></div></div>
+    <div class="answers" id="answers"></div>
+    <div class="status" id="answerStatus"></div>
+    <div class="resultBox hidden" id="roundResult">
+      <div class="muted">ESTA RONDA</div><div class="points" id="points">+0</div><div id="correctText"></div>
+      <div class="fact" id="fact"></div>
+      <div style="margin-top:12px;font-weight:900">Tu total: <span id="totalScore">0</span> puntos</div>
+    </div>
+  </section>
+
+  <section class="card center hidden" id="final">
+    <div class="finalTitle">🏆 Clasificación final</div><div class="place" id="place">🥇</div>
+    <div class="muted">TU RESULTADO</div><div class="score" id="myScore">0</div>
+    <table><thead><tr><th>#</th><th>Jugador</th><th>Puntos</th></tr></thead><tbody id="finalTable"></tbody></table>
+  </section>
+</div>
+<div class="prep hidden" id="prep"><div><div class="muted">PREPÁRATE</div><div class="prepNum" id="prepNum">3</div></div></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js';
+import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js';
+import { getDatabase, ref, get, set, onValue, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js';
+import { firebaseConfig } from './firebase-config.js';
+
+const $=s=>document.querySelector(s);
+const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getDatabase(app);
+let user=null,code=null,nick='',serverOffset=0,state={},currentQuestion=null,scores={},participants={};
+let currentIndex=-1,answeredIndex=-1,chosenIndex=null,timerLoop=null,roundRendered=-1;
+
+onValue(ref(db,'.info/serverTimeOffset'),s=>serverOffset=Number(s.val()||0));
+signInAnonymously(auth).catch(e=>$('#joinStatus').textContent='Firebase: '+e.message);
+onAuthStateChanged(auth,u=>{user=u;if(u&&new URLSearchParams(location.search).get('room')&&$('#roomInput').value){}});
+const params=new URLSearchParams(location.search);if(params.get('room'))$('#roomInput').value=params.get('room').replace(/\D/g,'').slice(0,6);
+$('#nickInput').value=localStorage.getItem('musica_b1_nick')||'';
+$('#joinBtn').onclick=joinRoom;
+$('#roomInput').onkeydown=e=>{if(e.key==='Enter')$('#nickInput').focus()};
+$('#nickInput').onkeydown=e=>{if(e.key==='Enter')joinRoom()};
+
+function nowServer(){return Date.now()+serverOffset}
+function roomRef(path=''){return ref(db,`tournaments/${code}${path?'/'+path:''}`)}
+function esc(x){return String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+
+async function joinRoom(){
+  if(!user){$('#joinStatus').textContent='Conectando con Firebase…';return}
+  const c=$('#roomInput').value.replace(/\D/g,'').slice(0,6);
+  const n=$('#nickInput').value.trim().replace(/\s+/g,' ').slice(0,22);
+  if(c.length!==6){$('#joinStatus').textContent='Escribe las 6 cifras del código.';return}
+  if(n.length<2){$('#joinStatus').textContent='Escribe tu nombre o apodo.';return}
+  $('#joinBtn').disabled=true;$('#joinStatus').textContent='Entrando…';
+  try{
+    const room=(await get(ref(db,`tournaments/${c}`))).val();
+    if(!room||room.kind!=='music_b1_2026')throw Error('No encuentro este torneo musical.');
+    const existing=room.participants?.[user.uid];
+    if(room.state?.status!=='lobby'&&!existing)throw Error('La partida ya ha empezado.');
+    code=c;nick=n;
+    const used=new Set(Object.entries(room.participants||{}).filter(([uid])=>uid!==user.uid).map(([,p])=>String(p.nick).toLowerCase()));
+    let finalNick=nick,i=2;while(used.has(finalNick.toLowerCase())){finalNick=`${nick} ${i++}`};nick=finalNick;
+    localStorage.setItem('musica_b1_nick',nick);
+    await set(roomRef(`participants/${user.uid}`),{nick,joinedAt:serverTimestamp()});
+    $('#nickPill').textContent=nick;$('#waitNick').textContent=nick;
+    $('#join').classList.add('hidden');$('#waiting').classList.remove('hidden');
+    subscribe();
+  }catch(e){$('#joinStatus').textContent=e.message;$('#joinBtn').disabled=false}
+}
+
+function subscribe(){
+  onValue(roomRef('participants'),s=>participants=s.val()||{});
+  onValue(roomRef('scores'),s=>{scores=s.val()||{};if(state.status==='finished')renderFinal()});
+  onValue(roomRef('currentQuestion'),s=>{currentQuestion=s.val()||null;if(state.phase==='question')renderQuestionIfReady()});
+  onValue(roomRef('reveal'),s=>{const r=s.val()||null;if(r&&state.phase==='reveal')renderReveal(r)});
+  onValue(roomRef('state'),s=>{
+    state=s.val()||{};
+    if(state.status==='playing'&&state.phase==='question'){renderQuestionIfReady()}
+    else if(state.status==='playing'&&state.phase==='reveal'){
+      get(roomRef('reveal')).then(x=>{if(x.exists())renderReveal(x.val())});
+    }else if(state.status==='finished'){showFinal()}
+  });
+}
+
+function renderQuestionIfReady(){
+  if(!currentQuestion||state.qIndex==null||!state.questionStartAt)return;
+  const idx=Number(state.qIndex);
+  if(idx!==currentIndex){
+    currentIndex=idx;answeredIndex=-1;chosenIndex=null;roundRendered=-1;
+    $('#waiting').classList.add('hidden');$('#final').classList.add('hidden');$('#game').classList.remove('hidden');
+    $('#roundResult').classList.add('hidden');$('#answerStatus').textContent='';
+    $('#category').textContent=currentQuestion.category||'';$('#qnum').textContent=`Pregunta ${idx+1}`;
+    $('#question').textContent=currentQuestion.question||'';
+    $('#answers').innerHTML=(currentQuestion.options||[]).map((o,i)=>`<button class="answerBtn" data-i="${i}">${['▲','◆','●','■'][i]}&nbsp;&nbsp;${esc(o)}</button>`).join('');
+    document.querySelectorAll('.answerBtn').forEach(b=>b.onclick=()=>sendAnswer(Number(b.dataset.i)));
+  }
+  startTimer(Number(state.questionStartAt),Number(state.durationMs||10000));
+}
+
+function startTimer(startAt,duration){
+  if(timerLoop)clearInterval(timerLoop);
+  tick();timerLoop=setInterval(tick,70);
+  function tick(){
+    const now=nowServer(),before=startAt-now,remain=startAt+duration-now;
+    if(before>0){
+      $('#prep').classList.remove('hidden');$('#prepNum').textContent=Math.max(1,Math.ceil(before/1000));
+      $('#timer').textContent='10';$('#timebar').style.width='100%';
+      document.querySelectorAll('.answerBtn').forEach(b=>b.disabled=true);
+      return;
+    }
+    $('#prep').classList.add('hidden');
+    if(answeredIndex!==currentIndex)document.querySelectorAll('.answerBtn').forEach(b=>b.disabled=false);
+    $('#timer').textContent=Math.max(0,Math.ceil(remain/1000));
+    $('#timebar').style.width=`${Math.max(0,Math.min(100,remain/duration*100))}%`;
+    if(remain<=0){
+      clearInterval(timerLoop);timerLoop=null;
+      document.querySelectorAll('.answerBtn').forEach(b=>b.disabled=true);
+      if(answeredIndex!==currentIndex)$('#answerStatus').textContent='⏱️ Tiempo terminado';
+    }
+  }
+}
+
+async function sendAnswer(i){
+  if(answeredIndex===currentIndex||state.phase!=='question')return;
+  const start=Number(state.questionStartAt),dur=Number(state.durationMs||10000),now=nowServer();
+  if(now<start||now>start+dur)return;
+  answeredIndex=currentIndex;chosenIndex=i;
+  document.querySelectorAll('.answerBtn').forEach(b=>{b.disabled=true;b.classList.add('locked');if(Number(b.dataset.i)===i)b.classList.add('chosen')});
+  $('#answerStatus').textContent='✓ Respuesta enviada';
+  try{
+    await set(roomRef(`answers/${currentIndex}/${user.uid}`),{nick,optionIndex:i,answeredAt:serverTimestamp()});
+  }catch(e){
+    answeredIndex=-1;chosenIndex=null;$('#answerStatus').textContent='Error al enviar. Toca de nuevo.';
+    document.querySelectorAll('.answerBtn').forEach(b=>{b.disabled=false;b.classList.remove('locked','chosen')});
+  }
+}
+
+function renderReveal(r){
+  if(roundRendered===currentIndex)return;roundRendered=currentIndex;
+  if(timerLoop){clearInterval(timerLoop);timerLoop=null}$('#prep').classList.add('hidden');
+  const correct=Number(r.correctIndex);
+  document.querySelectorAll('.answerBtn').forEach(b=>{
+    b.disabled=true;b.classList.add('locked');
+    const i=Number(b.dataset.i);
+    if(i===correct)b.classList.add('correct');
+    if(i===chosenIndex&&i!==correct)b.classList.add('wrong');
+  });
+  const mine=scores[user.uid]||{};
+  const pts=mine.lastRound===currentIndex?Number(mine.lastPoints||0):0;
+  $('#points').textContent=`+${pts}`;
+  $('#correctText').textContent=chosenIndex===correct?'✅ ¡Correcto!':chosenIndex==null?'⏱️ Sin respuesta':'❌ Esta vez no';
+  $('#fact').innerHTML=`<strong>💡 Para recordar:</strong> ${esc(r.fact||'')}`;
+  $('#totalScore').textContent=Number(mine.score||0);
+  $('#roundResult').classList.remove('hidden');
+  $('#answerStatus').textContent='Esperando la siguiente pregunta…';
+}
+
+function showFinal(){
+  if(timerLoop)clearInterval(timerLoop);
+  $('#prep').classList.add('hidden');$('#waiting').classList.add('hidden');$('#game').classList.add('hidden');$('#final').classList.remove('hidden');
+  renderFinal();
+}
+function renderFinal(){
+  const arr=Object.entries(participants).map(([uid,p])=>({uid,...(scores[uid]||{nick:p.nick,score:0,correct:0,total:0})}))
+    .sort((a,b)=>Number(b.score||0)-Number(a.score||0)||Number(b.correct||0)-Number(a.correct||0));
+  const pos=arr.findIndex(r=>r.uid===user.uid);
+  $('#place').textContent=pos===0?'🥇':pos===1?'🥈':pos===2?'🥉':`#${pos+1}`;
+  $('#myScore').textContent=Number(scores[user.uid]?.score||0);
+  $('#finalTable').innerHTML=arr.map((r,i)=>`<tr class="${r.uid===user.uid?'me':''}"><td>${i+1}</td><td><strong>${esc(r.nick)}</strong>${r.uid===user.uid?' · tú':''}</td><td><strong>${Number(r.score||0)}</strong></td></tr>`).join('');
+}
+</script>
+</body>
+</html>
