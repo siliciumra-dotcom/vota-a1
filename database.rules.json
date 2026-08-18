@@ -4,16 +4,13 @@
       "$roomId": {
         ".read": "auth != null && data.child('hostUid').val() === auth.uid",
         ".write": "auth != null && $roomId.matches(/^[0-9]{6}$/) && ((!data.exists() && newData.child('hostUid').val() === auth.uid) || (data.exists() && data.child('hostUid').val() === auth.uid && newData.child('hostUid').val() === auth.uid))",
-
         "hostUid": {
           ".read": "auth != null"
         },
-
         "state": {
           ".read": "auth != null",
           ".write": "auth != null && root.child('rooms').child($roomId).child('hostUid').val() === auth.uid"
         },
-
         "participants": {
           "$uid": {
             ".read": "auth != null && (auth.uid === $uid || root.child('rooms').child($roomId).child('hostUid').val() === auth.uid)",
@@ -21,15 +18,60 @@
             ".validate": "!newData.exists() || (newData.hasChildren(['nick','joinedAt']) && newData.child('nick').isString() && newData.child('nick').val().length <= 40 && newData.child('joinedAt').isNumber())"
           }
         },
-
         "votes": {
           "$question": {
             ".read": "auth != null && root.child('rooms').child($roomId).child('hostUid').val() === auth.uid",
-
             "$uid": {
               ".read": "auth != null && (auth.uid === $uid || root.child('rooms').child($roomId).child('hostUid').val() === auth.uid)",
               ".write": "auth != null && auth.uid === $uid && $question.matches(/^([0-9]|1[0-9])$/) && root.child('rooms').child($roomId).child('state').child('closed').val() !== true",
               ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 4)"
+            }
+          }
+        }
+      }
+    },
+    "tournaments": {
+      "$roomId": {
+        ".read": "auth != null && $roomId.matches(/^[0-9]{6}$/)",
+        ".write": "auth != null && $roomId.matches(/^[0-9]{6}$/) && ((!data.exists() && newData.child('hostUid').val() === auth.uid) || (data.exists() && data.child('hostUid').val() === auth.uid && newData.child('hostUid').val() === auth.uid))",
+        "participants": {
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid && (root.child('tournaments').child($roomId).child('state').child('status').val() === 'lobby' || data.exists())",
+            ".validate": "!newData.exists() || (newData.hasChildren(['nick','joinedAt']) && newData.child('nick').isString() && newData.child('nick').val().length <= 40 && newData.child('joinedAt').isNumber())"
+          }
+        },
+        "answers": {
+          "$question": {
+            "$uid": {
+              ".write": "auth != null && auth.uid === $uid && $question.matches(/^([0-9]|1[0-9])$/) && root.child('tournaments').child($roomId).child('state').child('status').val() === 'playing' && root.child('tournaments').child($roomId).child('state').child('phase').val() === 'question'",
+              ".validate": "!newData.exists() || (newData.hasChildren(['nick','optionIndex','answeredAt']) && newData.child('nick').isString() && newData.child('nick').val().length <= 40 && newData.child('optionIndex').isNumber() && newData.child('optionIndex').val() >= 0 && newData.child('optionIndex').val() <= 3 && newData.child('answeredAt').isNumber())"
+            }
+          }
+        },
+        "scores": {
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid",
+            ".validate": "!newData.exists() || (newData.hasChildren(['nick','score','correct','total']) && newData.child('nick').isString() && newData.child('nick').val().length <= 40 && newData.child('score').isNumber() && newData.child('correct').isNumber() && newData.child('total').isNumber())"
+          }
+        }
+      }
+    },
+    "musicVotes": {
+      "$roomId": {
+        ".read": "auth != null && $roomId.matches(/^[0-9]{6}$/)",
+        ".write": "auth != null && $roomId.matches(/^[0-9]{6}$/) && ((!data.exists() && newData.child('hostUid').val() === auth.uid) || (data.exists() && data.child('hostUid').val() === auth.uid && newData.child('hostUid').val() === auth.uid))",
+        ".validate": "!newData.exists() || (newData.child('hostUid').isString() && newData.child('kind').val() === 'cata_music_b1_votes' && newData.child('state').exists())",
+        "participants": {
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid && (root.child('musicVotes').child($roomId).child('state').child('status').val() === 'lobby' || data.exists())",
+            ".validate": "!newData.exists() || (newData.hasChildren(['nick','joinedAt']) && newData.child('nick').isString() && newData.child('nick').val().length <= 40 && newData.child('joinedAt').isNumber())"
+          }
+        },
+        "votes": {
+          "$sample": {
+            "$uid": {
+              ".write": "auth != null && auth.uid === $uid && $sample.matches(/^[0-7]$/) && root.child('musicVotes').child($roomId).child('state').child('status').val() === 'playing' && root.child('musicVotes').child($roomId).child('state').child('open').val() === true",
+              ".validate": "!newData.exists() || (newData.hasChildren(['nick','value','votedAt']) && newData.child('nick').isString() && newData.child('nick').val().length <= 40 && newData.child('value').isNumber() && newData.child('value').val() >= 1 && newData.child('value').val() <= 4 && newData.child('votedAt').isNumber())"
             }
           }
         }
