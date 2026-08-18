@@ -3,68 +3,305 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>¡VOTA! — A1</title>
+<title>Español — panel aktywności</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap');
+
 *{box-sizing:border-box}
+
 body{
-  margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;
-  font-family:Poppins,sans-serif;color:#172033;
+  margin:0;
+  min-height:100vh;
+  padding:28px;
+  font-family:Poppins,sans-serif;
+  color:#172033;
   background:
-    radial-gradient(circle at 15% 15%,rgba(255,255,255,.28),transparent 28%),
+    radial-gradient(circle at 12% 10%,rgba(255,255,255,.22),transparent 25%),
+    radial-gradient(circle at 88% 20%,rgba(255,255,255,.14),transparent 26%),
     linear-gradient(135deg,#667eea,#764ba2);
 }
-.wrap{width:min(850px,100%)}
+
+.wrap{
+  width:min(1080px,100%);
+  margin:0 auto;
+}
+
 .card{
-  background:rgba(255,255,255,.97);border-radius:28px;padding:38px;
-  box-shadow:0 24px 70px rgba(20,20,55,.3);text-align:center;
+  background:rgba(255,255,255,.97);
+  border-radius:30px;
+  padding:38px;
+  box-shadow:0 24px 70px rgba(20,20,55,.30);
 }
+
+.header{
+  text-align:center;
+  margin-bottom:32px;
+}
+
 .badge{
-  display:inline-block;padding:7px 13px;border-radius:999px;
-  background:#eef0ff;color:#5264d6;font-size:13px;font-weight:800;margin-bottom:14px;
+  display:inline-block;
+  padding:7px 13px;
+  border-radius:999px;
+  background:#eef0ff;
+  color:#5264d6;
+  font-size:13px;
+  font-weight:800;
+  margin-bottom:14px;
 }
-h1{font-size:clamp(32px,6vw,54px);margin:0 0 8px}
-p{color:#697080;line-height:1.6;margin:0 auto 28px;max-width:610px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+
+h1{
+  font-size:clamp(34px,6vw,58px);
+  margin:0 0 8px;
+}
+
+.header p{
+  color:#697080;
+  line-height:1.6;
+  margin:0 auto;
+  max-width:700px;
+}
+
+.section{
+  margin-top:30px;
+}
+
+.section-title{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size:21px;
+  font-weight:800;
+  margin-bottom:12px;
+}
+
+.section-desc{
+  color:#767d8f;
+  font-size:13px;
+  margin:-5px 0 14px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+
+.grid.one{
+  grid-template-columns:1fr;
+}
+
 .link{
-  display:flex;min-height:180px;flex-direction:column;align-items:center;justify-content:center;
-  gap:9px;text-decoration:none;border-radius:22px;padding:24px;color:white;
+  display:flex;
+  min-height:132px;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:center;
+  gap:7px;
+  text-decoration:none;
+  border-radius:20px;
+  padding:22px;
+  color:white;
   transition:.18s transform,.18s box-shadow;
 }
-.link:hover{transform:translateY(-5px);box-shadow:0 18px 35px rgba(30,30,70,.23)}
-.teacher{background:linear-gradient(135deg,#5264d6,#7656c8)}
-.student{background:linear-gradient(135deg,#3a9d7d,#48b89a)}
-.icon{font-size:44px}
-.title{font-size:23px;font-weight:800}
-.small{font-size:13px;opacity:.86}
-.footer{margin-top:24px;font-size:12px;color:#8a8f9d}
-@media(max-width:620px){
-  .card{padding:26px 18px}.grid{grid-template-columns:1fr}.link{min-height:145px}
+
+.link:hover{
+  transform:translateY(-4px);
+  box-shadow:0 15px 30px rgba(30,30,70,.22);
+}
+
+.teacher{
+  background:linear-gradient(135deg,#5264d6,#7656c8);
+}
+
+.student{
+  background:linear-gradient(135deg,#3a9d7d,#48b89a);
+}
+
+.music{
+  background:linear-gradient(135deg,#d95c8f,#8c59c7);
+}
+
+.quiz{
+  background:linear-gradient(135deg,#e5903f,#cf5e55);
+}
+
+.tournament{
+  background:linear-gradient(135deg,#455fc0,#32498d);
+}
+
+.vote-music{
+  background:linear-gradient(135deg,#c24b7b,#a2469c);
+}
+
+.icon{
+  font-size:33px;
+}
+
+.title{
+  font-size:20px;
+  font-weight:800;
+}
+
+.small{
+  font-size:12px;
+  opacity:.90;
+  line-height:1.4;
+}
+
+.file{
+  margin-top:3px;
+  font-size:10px;
+  opacity:.72;
+  font-weight:600;
+}
+
+.divider{
+  height:1px;
+  background:#e7e9ef;
+  margin:30px 0 0;
+}
+
+.footer{
+  margin-top:22px;
+  font-size:12px;
+  color:#8a8f9d;
+  text-align:center;
+}
+
+@media(max-width:700px){
+  body{padding:14px}
+  .card{padding:26px 18px}
+  .grid{grid-template-columns:1fr}
+  .link{min-height:118px}
 }
 </style>
 </head>
+
 <body>
 <main class="wrap">
   <section class="card">
-    <span class="badge">Español A1 · Firebase</span>
-    <h1>🗳️ ¡VOTA!</h1>
-    <p>Me gusta / No me gusta — wybierz, dokąd chcesz wejść. Nie musisz już pamiętać ani ręcznie wpisywać nazw plików.</p>
 
-    <div class="grid">
-      <a class="link teacher" href="profesor.html">
-        <span class="icon">👩‍🏫</span>
-        <span class="title">Panel nauczyciela</span>
-        <span class="small">Utwórz klasę i prowadź głosowanie →</span>
-      </a>
-
-      <a class="link student" href="alumno.html">
-        <span class="icon">📱</span>
-        <span class="title">Ekran ucznia</span>
-        <span class="small">Dołącz do klasy →</span>
-      </a>
+    <div class="header">
+      <span class="badge">Español · Firebase · GitHub Pages</span>
+      <h1>🎮 Panel aktywności</h1>
+      <p>
+        Wszystkie gry i narzędzia w jednym miejscu.
+        Wybierz aktywność i przejdź od razu do właściwego panelu.
+      </p>
     </div>
 
-    <div class="footer">vota-a1 · GitHub Pages</div>
+    <!-- VOTA A1 -->
+    <section class="section">
+      <div class="section-title">🗳️ ¡VOTA! — Me gusta / No me gusta</div>
+      <div class="section-desc">Klasyczne głosowanie A1.</div>
+
+      <div class="grid">
+        <a class="link teacher" href="profesor.html">
+          <span class="icon">👩‍🏫</span>
+          <span class="title">Panel nauczyciela</span>
+          <span class="small">Utwórz klasę i prowadź głosowanie.</span>
+          <span class="file">profesor.html</span>
+        </a>
+
+        <a class="link student" href="alumno.html">
+          <span class="icon">📱</span>
+          <span class="title">Ekran ucznia</span>
+          <span class="small">Dołącz do klasy i oddawaj głosy.</span>
+          <span class="file">alumno.html</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- CATA MUSICAL -->
+    <section class="section">
+      <div class="section-title">🎧 Cata Musical B1</div>
+      <div class="section-desc">
+        8 próbek muzycznych: reguetón, pop, rock, flamenco, bachata, salsa, ranchera i vallenato-pop.
+      </div>
+
+      <div class="grid one">
+        <a class="link music" href="cata_musical_b1.html">
+          <span class="icon">🎵</span>
+          <span class="title">Otwórz panel odsłuchu</span>
+          <span class="small">Próbki, timer, ekran projektora i odkrywanie odpowiedzi.</span>
+          <span class="file">cata_musical_b1.html</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- VOTA MUSICA -->
+    <section class="section">
+      <div class="section-title">💜 ¡Vota la música!</div>
+      <div class="section-desc">
+        Uczniowie oceniają każdą próbkę: Me encanta / Me gusta / No está mal / No me gusta.
+      </div>
+
+      <div class="grid">
+        <a class="link vote-music" href="vota_musica_profesor.html">
+          <span class="icon">👩‍🏫</span>
+          <span class="title">Głosowanie — nauczyciel</span>
+          <span class="small">Kod pokoju, wyniki na żywo i ranking wszystkich 8 piosenek.</span>
+          <span class="file">vota_musica_profesor.html</span>
+        </a>
+
+        <a class="link student" href="vota_musica_alumno.html">
+          <span class="icon">📱</span>
+          <span class="title">Głosowanie — uczeń</span>
+          <span class="small">Dołącz kodem i oceń każdą próbkę.</span>
+          <span class="file">vota_musica_alumno.html</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- QUIZ MUSICA -->
+    <section class="section">
+      <div class="section-title">🏆 Quiz muzyczny B1</div>
+      <div class="section-desc">
+        Kahoot-style: 4 odpowiedzi, 10 sekund, punkty za poprawność i szybkość.
+      </div>
+
+      <div class="grid">
+        <a class="link quiz" href="quiz-musica-profesor.html">
+          <span class="icon">👩‍🏫</span>
+          <span class="title">Quiz — nauczyciel</span>
+          <span class="small">Utwórz turniej, uruchamiaj pytania i obserwuj ranking.</span>
+          <span class="file">quiz-musica-profesor.html</span>
+        </a>
+
+        <a class="link student" href="quiz-musica-alumno.html">
+          <span class="icon">📱</span>
+          <span class="title">Quiz — uczeń</span>
+          <span class="small">Dołącz kodem i odpowiadaj na pytania.</span>
+          <span class="file">quiz-musica-alumno.html</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- TORNEO -->
+    <section class="section">
+      <div class="section-title">⚡ Torneo</div>
+      <div class="section-desc">Wcześniejszy turniej multiplayer.</div>
+
+      <div class="grid">
+        <a class="link tournament" href="torneo-profesor.html">
+          <span class="icon">👩‍🏫</span>
+          <span class="title">Torneo — nauczyciel</span>
+          <span class="small">Panel prowadzącego.</span>
+          <span class="file">torneo-profesor.html</span>
+        </a>
+
+        <a class="link student" href="torneo-alumno.html">
+          <span class="icon">📱</span>
+          <span class="title">Torneo — uczeń</span>
+          <span class="small">Ekran uczestnika.</span>
+          <span class="file">torneo-alumno.html</span>
+        </a>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+    <div class="footer">vota-a1 · centrum aktywności · GitHub Pages</div>
+
   </section>
 </main>
 </body>
