@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<title>Alumno · Vota la música</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap');
+:root{--text:#fff;--muted:#b6bbd1;--accent:#ffcf57;--line:#353b5c}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}body{margin:0;min-height:100svh;font-family:Poppins,sans-serif;color:var(--text);background:
+radial-gradient(circle at 10% 10%,#7443cc55,transparent 30%),radial-gradient(circle at 95% 15%,#e54f9250,transparent 27%),linear-gradient(145deg,#0a0d1b,#19132f);padding:12px}
+.wrap{width:min(650px,100%);margin:auto}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.brand{font-weight:900;font-size:19px}.pill{font-size:11px;padding:6px 9px;border:1px solid var(--line);border-radius:999px;color:#cad0e4;background:#111426}
+.card{background:#15192ce9;border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 22px 60px #0008}.hidden{display:none!important}.center{text-align:center}.muted{color:var(--muted)}
+input{width:100%;font:inherit;background:#0b1020;color:white;border:1px solid #3b4568;border-radius:14px;padding:13px;margin:5px 0 10px;font-size:18px}#room{font-size:29px;letter-spacing:.12em;text-align:center;font-weight:900}
+button{font:inherit;font-weight:900;border:0;border-radius:16px;padding:14px;cursor:pointer}.joinBtn{width:100%;background:var(--accent);color:#171829}
+.wait{font-size:70px;animation:pulse 1.2s infinite alternate}@keyframes pulse{to{transform:scale(1.1)}}.sampleLabel{font-size:13px;letter-spacing:.15em;color:var(--accent);font-weight:900}.sample{font-size:clamp(65px,20vw,120px);font-weight:900;line-height:1;margin:12px 0 5px}
+.question{font-size:clamp(23px,6vw,34px);font-weight:900;margin-bottom:17px}.votes{display:grid;grid-template-columns:1fr 1fr;gap:10px}.vote{min-height:145px;color:white;text-align:center;font-size:clamp(17px,4vw,22px);line-height:1.25;box-shadow:0 9px 20px #0005;transition:.1s transform,.15s opacity}
+.vote:active{transform:scale(.97)}.v4{background:linear-gradient(145deg,#d7478b,#f06a9f)}.v3{background:linear-gradient(145deg,#4b75df,#64a7ff)}.v2{background:linear-gradient(145deg,#bd8a22,#e2b33d)}.v1{background:linear-gradient(145deg,#687080,#8f96a3)}
+.vote.lock{opacity:.35}.vote.chosen{opacity:1;outline:4px solid white}.thanks{margin-top:15px;padding:15px;border-radius:15px;background:#0d1222;border:1px solid #343d5e;font-weight:800}.song{margin-top:12px;color:var(--accent);font-weight:800}
+@media(max-width:440px){body{padding:7px}.card{padding:13px}.vote{min-height:120px}.votes{gap:7px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="top"><div class="brand">🎵 ¡VOTA!</div><div class="pill" id="nickPill">Alumno</div></div>
+<section class="card" id="join">
+  <h2 style="margin-top:0">Entra en la votación</h2>
+  <label class="muted">Código</label><input id="room" inputmode="numeric" maxlength="6" placeholder="000000">
+  <label class="muted">Tu nombre / apodo</label><input id="nick" maxlength="22" placeholder="Ej. Marta">
+  <button class="joinBtn" id="joinBtn">Entrar</button><div class="muted center" id="status" style="margin-top:10px"></div>
+</section>
+
+<section class="card center hidden" id="waiting">
+  <div class="wait">🎧</div><h2 id="waitNick"></h2><p class="muted">Esperando al profesor…</p>
+</section>
+
+<section class="card center hidden" id="voteScreen">
+  <div class="sampleLabel">¿QUÉ TE PARECE?</div><div class="sample" id="sample">#1</div><div class="question">Elige una opción:</div>
+  <div class="votes">
+    <button class="vote v4" data-v="4">😍<br>Me encanta</button>
+    <button class="vote v3" data-v="3">🙂<br>Me gusta</button>
+    <button class="vote v2" data-v="2">😐<br>No está mal</button>
+    <button class="vote v1" data-v="1">🙅<br>No me gusta</button>
+  </div>
+  <div class="thanks hidden" id="thanks">✓ ¡Voto enviado!<div class="muted" style="font-size:13px;margin-top:4px">Espera la siguiente muestra.</div></div>
+  <div class="song hidden" id="song"></div>
+</section>
+
+<section class="card center hidden" id="finished"><div style="font-size:70px">🏆</div><h1>¡Gracias!</h1><p class="muted">La votación ha terminado. Mira el ranking final en la pantalla del profesor.</p></section>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js';
+import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js';
+import { getDatabase, ref, get, set, onValue, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js';
+import { firebaseConfig } from './firebase-config.js';
+
+const SONGS=[{"n": 1, "artist": "Bad Bunny", "title": "Tití Me Preguntó", "genre": "Reguetón / urbano", "country": "Puerto Rico"}, {"n": 2, "artist": "La Oreja de Van Gogh", "title": "Rosas", "genre": "Pop español", "country": "España"}, {"n": 3, "artist": "Soda Stereo", "title": "De Música Ligera", "genre": "Rock en español", "country": "Argentina"}, {"n": 4, "artist": "Camarón de la Isla", "title": "Como el Agua", "genre": "Flamenco", "country": "Andalucía, España"}, {"n": 5, "artist": "Juan Luis Guerra", "title": "Bachata en Fukuoka", "genre": "Bachata", "country": "República Dominicana"}, {"n": 6, "artist": "Celia Cruz", "title": "La Vida Es Un Carnaval", "genre": "Salsa", "country": "Cuba / Caribe"}, {"n": 7, "artist": "Vicente Fernández", "title": "El Rey", "genre": "Ranchera / mariachi", "country": "México"}, {"n": 8, "artist": "Carlos Vives", "title": "La Tierra del Olvido", "genre": "Vallenato-pop", "country": "Colombia"}];
+const $=s=>document.querySelector(s);
+const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getDatabase(app);
+let user=null,code=null,nick='',state={},current=-1,votedFor=-1;
+
+signInAnonymously(auth).catch(e=>$('#status').textContent='Firebase: '+e.message);
+onAuthStateChanged(auth,u=>user=u);
+const p=new URLSearchParams(location.search);if(p.get('room'))$('#room').value=p.get('room').replace(/\D/g,'').slice(0,6);
+$('#nick').value=localStorage.getItem('vota_musica_nick')||'';
+$('#joinBtn').onclick=join;
+document.querySelectorAll('.vote').forEach(b=>b.onclick=()=>vote(Number(b.dataset.v)));
+function rr(path=''){return ref(db,`musicVotes/${code}${path?'/'+path:''}`)}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+
+async function join(){
+  if(!user){$('#status').textContent='Conectando…';return}
+  const c=$('#room').value.replace(/\D/g,'').slice(0,6),n=$('#nick').value.trim().replace(/\s+/g,' ').slice(0,22);
+  if(c.length!==6){$('#status').textContent='Escribe el código de 6 cifras.';return}
+  if(n.length<2){$('#status').textContent='Escribe tu nombre.';return}
+  $('#joinBtn').disabled=true;$('#status').textContent='Entrando…';
+  try{
+    const room=(await get(ref(db,`musicVotes/${c}`))).val();
+    if(!room||room.kind!=='cata_music_b1_votes')throw Error('No encuentro esta votación.');
+    code=c;nick=n;localStorage.setItem('vota_musica_nick',nick);
+    await set(rr(`participants/${user.uid}`),{nick,joinedAt:serverTimestamp()});
+    $('#nickPill').textContent=nick;$('#waitNick').textContent=nick;$('#join').classList.add('hidden');$('#waiting').classList.remove('hidden');subscribe();
+  }catch(e){$('#status').textContent=e.message;$('#joinBtn').disabled=false}
+}
+function subscribe(){
+  onValue(rr('state'),s=>{
+    state=s.val()||{};
+    if(state.status==='lobby'){show('waiting');return}
+    if(state.status==='finished'){show('finished');return}
+    if(state.status==='playing'){
+      const n=Number(state.current||0);
+      if(n!==current){current=n;votedFor=-1;resetButtons()}
+      show('voteScreen');render();
+    }
+  });
+}
+function show(id){['waiting','voteScreen','finished'].forEach(x=>$('#'+x).classList.toggle('hidden',x!==id))}
+function resetButtons(){
+  $('#thanks').classList.add('hidden');
+  document.querySelectorAll('.vote').forEach(b=>{b.disabled=false;b.classList.remove('lock','chosen')});
+}
+function render(){
+  $('#sample').textContent=`#${current+1}`;
+  const s=SONGS[current];
+  $('#song').innerHTML=`${esc(s.artist)} — <em>${esc(s.title)}</em>`;
+  $('#song').classList.toggle('hidden',!state.revealed);
+  const locked=!state.open||votedFor===current;
+  document.querySelectorAll('.vote').forEach(b=>{b.disabled=locked;if(locked)b.classList.add('lock')});
+  if(!state.open&&votedFor!==current){$('#thanks').classList.remove('hidden');$('#thanks').innerHTML='🔒 Votación cerrada<div class="muted" style="font-size:13px;margin-top:4px">Espera la siguiente muestra.</div>'}
+}
+async function vote(value){
+  if(!state.open||votedFor===current)return;
+  votedFor=current;
+  document.querySelectorAll('.vote').forEach(b=>{b.disabled=true;b.classList.add('lock');if(Number(b.dataset.v)===value)b.classList.add('chosen')});
+  $('#thanks').classList.remove('hidden');$('#thanks').innerHTML='✓ ¡Voto enviado!<div class="muted" style="font-size:13px;margin-top:4px">Espera la siguiente muestra.</div>';
+  try{
+    await set(rr(`votes/${current}/${user.uid}`),{nick,value,votedAt:serverTimestamp()});
+  }catch(e){
+    votedFor=-1;resetButtons();$('#thanks').classList.remove('hidden');$('#thanks').textContent='Error. Inténtalo otra vez.';
+  }
+}
+</script>
+</body>
+</html>
