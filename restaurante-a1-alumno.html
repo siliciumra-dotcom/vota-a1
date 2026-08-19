@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Restaurante A1</title>
+<style>
+:root{--bg:#f6efe4;--ink:#1f2937;--muted:#6b7280;--card:#fff;--line:#eadfce;--accent:#a84b35;--green:#2f7d5b;--gold:#d89b3c;--blue:#3f6f91;--cream:#fff8eb}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;background:radial-gradient(circle at 15% 0,#fffdf7 0,transparent 30%),linear-gradient(180deg,#fff8ef,var(--bg));color:var(--ink)}
+.wrap{max-width:800px;margin:auto;padding:14px 14px 28px}.card{background:rgba(255,255,255,.97);border:1px solid var(--line);border-radius:24px;padding:20px;box-shadow:0 12px 34px rgba(68,52,31,.09);margin-top:14px}.hidden{display:none!important}h1,h2,h3{margin-top:0}.muted{font-size:13px;color:var(--muted)}
+input,textarea{width:100%;border:1.5px solid #d9d1c5;border-radius:14px;padding:13px 14px;font:inherit;outline:none;background:#fff}textarea{min-height:94px;resize:vertical}input:focus,textarea:focus{border-color:#c17a62;box-shadow:0 0 0 3px #f5e2dc}label{display:block;font-weight:850;margin:12px 0 6px}
+button{border:0;border-radius:14px;padding:12px 16px;font-weight:900;cursor:pointer;background:var(--accent);color:#fff;font-size:15px;transition:.16s transform,.16s box-shadow,.16s opacity}button:hover{transform:translateY(-1px);box-shadow:0 7px 16px rgba(52,42,31,.13)}button.green{background:var(--green)}button.secondary{background:#eee8de;color:#41382d}button.helpBtn{background:#fff;color:#7d5b25;border:1.5px solid #e4c784}button:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
+.badge{display:inline-block;padding:7px 10px;border-radius:999px;background:#efe3d0;color:#6c4f2a;font-size:12px;font-weight:900}.roleCard{display:flex;justify-content:space-between;gap:12px;align-items:center}.roleName{font-size:25px;font-weight:950}.timer{font-size:27px;font-weight:950;color:var(--accent);font-variant-numeric:tabular-nums}.timer small{display:block;font-size:9px;letter-spacing:.08em;text-align:right;color:var(--muted)}
+.progressRail{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;margin:13px 0 5px}.stepDot{height:7px;border-radius:999px;background:#eee4d7;transition:.25s}.stepDot.done{background:#7fb498}.stepDot.active{background:var(--accent);box-shadow:0 0 0 3px #f3d7cf}.stageCaption{text-align:center;font-size:11px;font-weight:900;color:#8b7258;letter-spacing:.06em;text-transform:uppercase}
+.instruction{padding:15px;border-radius:16px;background:#fff5df;border:1px solid #ead1a3;font-weight:850;line-height:1.48}.partnerMsg{margin-top:12px;padding:13px;border-radius:14px;background:#f2f5f7;border-left:5px solid #8da4b1}.helpPanel{margin-top:10px;padding:12px;border-radius:14px;background:#fff9e9;border:1px dashed #dfbd6f;color:#6d531f;font-size:13px;line-height:1.5}.exampleBox{margin-top:9px;padding:10px;border-radius:10px;background:white;border:1px solid #eadbb6;color:#51442d}.wrong{margin-top:9px;padding:10px 12px;border-radius:12px;background:#fff0ed;color:#983d2f;font-size:13px;font-weight:800}
+.menu{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}.menu button{background:#fff;color:#342d27;border:1.5px solid var(--line);min-height:106px;text-align:left;padding:12px;position:relative;overflow:hidden}.menu button .foodEmoji{font-size:31px;display:block;margin-bottom:5px;transition:.18s transform}.menu button .price{position:absolute;right:9px;top:9px;padding:4px 7px;border-radius:999px;background:#f5ede1;font-size:11px}.menu button.selected{border-color:var(--green);box-shadow:0 0 0 3px #dcefe5;background:#f5fcf8}.menu button.selected .foodEmoji{transform:scale(1.22) rotate(-4deg)}.choiceSummary{display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:14px;background:#edf8f2;border:1px solid #cce8d9;margin-top:10px;animation:popIn .25s ease}.choiceSummary .big{font-size:33px}.checklist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:12px 0}.checklist button{background:#fff;color:#342d27;border:1.5px solid var(--line);min-height:64px}.checklist button.selected{border-color:var(--green);box-shadow:0 0 0 3px #dcefe5;background:#f3fbf6}
+.done{text-align:center;padding:20px}.bill{background:#fffdf7;border:1px dashed #b9a78e;border-radius:14px;padding:14px;margin:12px 0;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;animation:receiptDrop .45s ease}.billRow{display:flex;justify-content:space-between;padding:5px 0}.total{font-weight:900;border-top:1px dashed #aaa;margin-top:5px;padding-top:9px}
+.swapCard{padding:18px;border-radius:18px;background:linear-gradient(135deg,#fff4de,#f9e5cc);border:1px solid #e7c89b}.readyPeople{display:flex;justify-content:center;gap:8px;margin:14px 0}.readyChip{padding:7px 10px;border-radius:999px;background:#fff;border:1px solid #dfcfb9;font-size:12px;font-weight:850}.readyChip.yes{background:#e5f4eb;color:#246042;border-color:#b8ddc8}
+.scene{height:250px;border-radius:22px;position:relative;overflow:hidden;margin:12px 0;background:linear-gradient(#d8eef7 0 40%,#f3d8af 40% 70%,#bb8e62 70%);border:1px solid #e4d4bd;box-shadow:inset 0 -18px 35px rgba(80,43,20,.10)}
+.window{position:absolute;left:14px;top:16px;width:150px;height:82px;border:7px solid #f7efe4;border-radius:7px;background:linear-gradient(#88c4df,#d9f0f7);overflow:hidden;box-shadow:0 3px 0 #9f7956}.city{position:absolute;left:-20px;bottom:0;width:230px;height:40px;background:linear-gradient(90deg,#bd8f70 0 13%,#9c7765 13% 22%,#cba27c 22% 39%,#8c6d60 39% 53%,#d2aa83 53% 72%,#a57d65 72% 86%,#c99e7a 86%);clip-path:polygon(0 45%,8% 45%,8% 20%,18% 20%,18% 55%,29% 55%,29% 5%,41% 5%,41% 50%,52% 50%,52% 28%,66% 28%,66% 52%,78% 52%,78% 12%,90% 12%,90% 47%,100% 47%,100% 100%,0 100%);animation:cityDrift 16s linear infinite alternate}
+.lamp{position:absolute;left:50%;top:-4px;transform-origin:top center;font-size:30px;animation:lampSwing 3.8s ease-in-out infinite}.kitchen{position:absolute;right:12px;top:20px;width:92px;height:96px;border-radius:8px 8px 0 0;background:#7d4b35;border:5px solid #5e382a;color:#f7e8cf;font-size:10px;font-weight:900;text-align:center;padding-top:8px;letter-spacing:.08em}.kitchen:after{content:'🔥';position:absolute;left:31px;bottom:9px;font-size:25px;animation:flame 1.2s ease-in-out infinite}.plant{position:absolute;left:8px;bottom:18px;font-size:36px;animation:plantSway 4s ease-in-out infinite}
+.floorLine{position:absolute;left:0;right:0;bottom:68px;height:2px;background:rgba(107,70,43,.18)}
+.tableSpot{position:absolute;width:72px;height:52px;border-radius:50%;background:radial-gradient(circle at 50% 42%,#fff6ea 0 48%,#8e593d 50% 58%,#78462f 59% 100%);box-shadow:0 6px 0 rgba(86,52,35,.35)}.tableSpot:after{content:'';position:absolute;left:31px;bottom:-18px;width:10px;height:20px;background:#6a422d;border-radius:4px}.tableSpot.active{box-shadow:0 0 0 4px rgba(255,255,255,.75),0 0 0 7px rgba(168,75,53,.35),0 8px 0 rgba(86,52,35,.35)}
+.tableSpot[data-table='1']{left:56px;top:112px}.tableSpot[data-table='2']{left:190px;top:112px}.tableSpot[data-table='3']{left:322px;top:112px}.tableSpot[data-table='4']{left:120px;top:178px}.tableSpot[data-table='5']{left:258px;top:178px}
+.avatar{position:absolute;font-size:48px;filter:drop-shadow(0 4px 2px rgba(0,0,0,.12));transition:.45s transform,.45s left,.45s bottom,.45s right;z-index:3}.waiter{left:18px;bottom:78px;animation:idleBob 2.6s ease-in-out infinite}.client{right:-50px;bottom:78px;animation:idleBob 3s .4s ease-in-out infinite}.seated{transform:scale(.98)}
+.tray{position:absolute;left:50%;bottom:118px;font-size:27px;opacity:0;transform:translateY(15px) scale(.6);transition:.35s;z-index:4}.receiptScene{position:absolute;left:50%;bottom:118px;background:#fffdf2;border:1px solid #cbbca7;border-radius:4px;padding:6px 8px;font-size:18px;opacity:0;transform:translateY(-20px) rotate(-8deg);z-index:4}.steam{position:absolute;left:50%;bottom:138px;opacity:0;font-size:18px;z-index:4}.sceneLabel{position:absolute;left:12px;bottom:10px;padding:6px 9px;border-radius:999px;background:rgba(255,255,255,.88);font-size:10px;font-weight:950;letter-spacing:.08em;color:#704e35}.sceneOrder{position:absolute;right:10px;bottom:9px;display:flex;gap:4px}.sceneOrder span{width:31px;height:31px;border-radius:50%;background:rgba(255,255,255,.9);display:grid;place-items:center;font-size:18px;box-shadow:0 2px 6px rgba(0,0,0,.08)}.scenePayment{position:absolute;left:12px;top:10px;display:flex;gap:6px}.scenePayment span{padding:5px 8px;border-radius:999px;background:rgba(255,255,255,.92);font-size:10px;font-weight:900;color:#6c4f2a}.bubble{position:absolute;max-width:150px;padding:9px 11px;background:#fff;border-radius:15px;border:1px solid #e7d8c5;font-size:12px;line-height:1.35;box-shadow:0 8px 18px rgba(60,40,20,.10);opacity:0;transform:translateY(6px);transition:.25s;z-index:6}.bubble.show{opacity:1;transform:translateY(0)}.bubble:after{content:"";position:absolute;bottom:-8px;width:14px;height:14px;background:#fff;border-right:1px solid #e7d8c5;border-bottom:1px solid #e7d8c5;transform:rotate(45deg)}.bubble.waiterBubble,.bubble.clientBubble{left:0;top:0;right:auto;bottom:auto}.bubble.waiterBubble:after,.bubble.clientBubble:after{left:50%;margin-left:-7px}.sign{position:absolute;left:186px;top:16px;padding:6px 12px;border-radius:999px;background:#a84b35;color:#fff8eb;font-size:11px;font-weight:950;letter-spacing:.08em}.door{position:absolute;right:118px;bottom:72px;width:38px;height:72px;border-radius:10px 10px 0 0;background:linear-gradient(#80513b,#643b2b);box-shadow:inset -8px 0 0 rgba(255,255,255,.08)}.door:after{content:"";position:absolute;right:8px;top:34px;width:6px;height:6px;border-radius:50%;background:#f1d08a}
+.scene.entering .client.walking{animation:clientEnter 1s ease both}.scene.seated .client,.scene.drink .client,.scene.food .client,.scene.serving .client,.scene.mission .client,.scene.bill .client,.scene.goodbye .client{right:auto;animation:idleBob 3s .4s ease-in-out infinite}.scene.serving .waiter{animation:serveWalk 2.1s ease-in-out infinite}.scene.serving .tray,.scene.mission .tray{opacity:1;transform:translateY(0) scale(1)}.scene.serving .steam{opacity:1;animation:steamUp 1.5s ease-out infinite}.scene.bill.showReceipt .receiptScene{opacity:1;animation:receiptDrop .55s ease both}.scene.goodbye .waiter{transform:translateX(-12px)}
+@keyframes cityDrift{to{transform:translateX(-25px)}}@keyframes lampSwing{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}@keyframes flame{50%{transform:scale(1.12) rotate(4deg)}}@keyframes plantSway{50%{transform:rotate(3deg)}}@keyframes idleBob{50%{transform:translateY(-3px)}}@keyframes clientEnter{from{transform:translateX(120px);opacity:0}to{transform:translateX(0);opacity:1}}@keyframes serveWalk{0%,100%{transform:translateX(0)}50%{transform:translateX(92px)}}@keyframes steamUp{from{transform:translateY(7px);opacity:.2}to{transform:translateY(-13px);opacity:0}}@keyframes receiptDrop{from{transform:translateY(-18px) rotate(-5deg);opacity:0}to{transform:translateY(0) rotate(0);opacity:1}}@keyframes popIn{from{transform:scale(.95);opacity:0}to{transform:scale(1);opacity:1}}
+.tableChooser{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:12px}.tableChooser button{background:#fff;color:#342d27;border:1.5px solid var(--line);min-height:78px}.tableChooser button.selected{border-color:var(--green);box-shadow:0 0 0 3px #dcefe5;background:#f5fcf8}.tableNo{display:block;font-size:11px;color:#6d675f;margin-top:4px}
+.paymentGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}.paymentGrid button{background:#fff;color:#342d27;border:1.5px solid var(--line);min-height:74px}.paymentGrid button.selected{border-color:var(--green);box-shadow:0 0 0 3px #dcefe5;background:#f5fcf8}
+@media(max-width:540px){.menu{grid-template-columns:repeat(2,minmax(0,1fr))}.checklist{grid-template-columns:1fr 1fr}.roleCard{align-items:flex-start}.roleName{font-size:20px}.scene{height:230px}.window{width:108px}.kitchen{width:76px;height:86px}.avatar{font-size:42px}.bubble{max-width:110px;font-size:11px}.bubble.waiterBubble,.bubble.clientBubble{left:0;top:0;right:auto;bottom:auto}.tableSpot[data-table='1']{left:38px;top:114px}.tableSpot[data-table='2']{left:132px;top:114px}.tableSpot[data-table='3']{left:225px;top:114px}.tableSpot[data-table='4']{left:84px;top:176px}.tableSpot[data-table='5']{left:180px;top:176px}.tableSpot{width:58px;height:42px}.tableSpot:after{left:25px}.tableChooser{grid-template-columns:repeat(3,1fr)}.menu button{min-height:96px;padding:9px}.menu button .price{position:static;display:inline-block;margin-top:5px}.timer{font-size:24px}}
+</style>
+</head>
+<body><div class="wrap">
+<section id="join" class="card"><span class="badge">A1 · Restaurante</span><h1 style="margin-top:10px">🍽️ Entra en la partida</h1><label>Código</label><input id="roomInput" inputmode="numeric" maxlength="6" placeholder="123456"><label>Tu nombre</label><input id="nickInput" maxlength="22" placeholder="Marta"><div class="actions"><button id="joinBtn" class="green">Entrar</button></div><div id="joinStatus" class="muted" style="margin-top:9px"></div></section>
+<section id="waiting" class="card hidden done"><div style="font-size:65px;animation:idleBob 2s ease-in-out infinite">🍽️</div><h2 id="waitNick"></h2><p class="muted">Esperando al profesor y a tu pareja…</p></section>
+<section id="game" class="hidden">
+  <section class="card">
+    <div class="roleCard"><div><div id="roundLabel" class="muted">RONDA 1</div><div id="roleName" class="roleName">—</div><div id="partnerName" class="muted"></div></div><div id="timer" class="timer"><small>TIEMPO</small>05:00</div></div>
+    <div id="progressRail" class="progressRail"></div><div id="stageCaption" class="stageCaption"></div>
+    <div id="scene" class="scene entering"><div class="window"><div class="city"></div></div><div class="lamp">💡</div><div class="sign">RESTAURANTE</div><div class="kitchen">COCINA</div><div class="door"></div><div class="plant">🪴</div><div class="floorLine"></div><div class="tableSpot" data-table="1"></div><div class="tableSpot" data-table="2"></div><div class="tableSpot" data-table="3"></div><div class="tableSpot" data-table="4"></div><div class="tableSpot" data-table="5"></div><div id="waiterAvatar" class="avatar waiter">🧑‍🍳</div><div id="clientAvatar" class="avatar client walking">🧑</div><div id="waiterBubble" class="bubble waiterBubble"></div><div id="clientBubble" class="bubble clientBubble"></div><div id="sceneTray" class="tray">🍽️</div><div class="steam">♨️</div><div class="receiptScene">🧾</div><div id="sceneLabel" class="sceneLabel">ENTRADA</div><div id="scenePayment" class="scenePayment"></div><div id="sceneOrder" class="sceneOrder"></div></div>
+  </section>
+  <section id="task" class="card"></section>
+</section>
+</div>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js';
+import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js';
+import { getDatabase, ref, get, set, update, onValue, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js';
+import { firebaseConfig } from './firebase-config.js';
+const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getDatabase(app),$=s=>document.querySelector(s);
+let user=null,code=null,nick='',room=null,serverOffset=0,mission=null,selected=null,lastRenderKey='',pairId=null,missionSubKey='';
+const STAGE_NAMES=['Entrada','Bebida','Comida','Confirmación','Servimos','Misión sorpresa','La cuenta','Despedida'];
+const TABLE_POS={1:{left:70,bottom:100,waiterLeft:38,waiterBottom:108},2:{left:205,bottom:100,waiterLeft:168,waiterBottom:108},3:{left:335,bottom:100,waiterLeft:298,waiterBottom:108},4:{left:135,bottom:34,waiterLeft:98,waiterBottom:42},5:{left:273,bottom:34,waiterLeft:236,waiterBottom:42}};
+const DRINKS={agua:{label:'Agua',price:2,emoji:'💧'},gas:{label:'Agua con gas',price:2.5,emoji:'🫧'},cola:{label:'Coca-Cola',price:2.5,emoji:'🥤'},zumo:{label:'Zumo de naranja',price:3,emoji:'🍊'},limonada:{label:'Limonada',price:3,emoji:'🍋'},cafe:{label:'Café',price:2,emoji:'☕'},te:{label:'Té',price:2.2,emoji:'🍵'}};
+const FOODS={pizza:{label:'Pizza margarita',price:10,emoji:'🍕'},ensalada:{label:'Ensalada mixta',price:9,emoji:'🥗'},pasta:{label:'Pasta',price:11,emoji:'🍝'},hamburguesa:{label:'Hamburguesa',price:12,emoji:'🍔'},paella:{label:'Paella',price:14,emoji:'🥘'},tortilla:{label:'Tortilla española',price:8,emoji:'🥔'},bocadillo:{label:'Bocadillo',price:7,emoji:'🥖'},croquetas:{label:'Croquetas',price:9,emoji:'🧆'},cesar:{label:'Ensalada César',price:10,emoji:'🥬'},griega:{label:'Ensalada griega',price:10,emoji:'🫒'},quinoa:{label:'Bowl de quinoa',price:11,emoji:'🥙'}};
+const ITEMS=[['servilleta','🧻','servilleta'],['tenedor','🍴','tenedor'],['cuchillo','🔪','cuchillo'],['cuchara','🥄','cuchara'],['pan','🥖','pan'],['agua','💧','agua'],['sal','🧂','sal']];
+
+const HINTS={
+ '0_waiter':['Primero saluda y pregunta cuántas personas sois. Luego podrás elegir una mesa.','Muy buenas. ¿Para cuántas personas es la mesa?'],
+ '0_client':['Responde al camarero. Luego él te llevará a una mesa.','Somos dos.'],
+ '1_waiter':['Piensa en el verbo tomar.','¿Qué quieres tomar?'],
+ '1_client':['Puedes elegir una o varias bebidas. Usa y / también si quieres.','Para mí, un agua y un café, por favor.'],
+ '2_waiter':['Piensa en el verbo comer.','¿Qué quieres comer?'],
+ '2_client':['Puedes elegir uno o dos platos.','Quiero la ensalada griega y las croquetas, por favor.'],
+ '3_waiter':['Repite brevemente lo que ha pedido el cliente.','Entonces, un agua, un café y una ensalada griega.'],
+ '3_client':['Solo confirma si está bien.','Sí, correcto.'],
+ '4_waiter':['Lleva el pedido a la mesa.','Aquí tienes.'],
+ '4_client':['Solo necesitas reaccionar al camarero.','Muchas gracias.'],
+ '5_client':['Pide algo extra al camarero.','Perdona, necesito una servilleta, por favor.'],
+ '5_waiter':['Primero elige lo que pide y luego responde.','Sí, claro. Ahora vengo.'],
+ '6_client':['Primero pide la cuenta. Después elige tarjeta o efectivo.','La cuenta, por favor.'],
+ '6_waiter':['Primero trae la cuenta al cliente y di el total.','Aquí tienes la cuenta. Son 19 euros.'],
+ '7_waiter':['Piensa en una despedida corta.','Muchas gracias. Hasta luego.'],
+ '7_client':['Responde con una despedida corta.','Gracias. Hasta luego.']
+};
+const params=new URLSearchParams(location.search);if(params.get('room'))$('#roomInput').value=params.get('room').replace(/\D/g,'').slice(0,6);$('#nickInput').value=localStorage.getItem('restaurante_a1_nick')||'';
+onValue(ref(db,'.info/serverTimeOffset'),s=>serverOffset=Number(s.val()||0));
+signInAnonymously(auth).catch(e=>{$('#joinStatus').textContent='Firebase: '+e.message;$('#joinBtn').disabled=true});
+onAuthStateChanged(auth,u=>{user=u;if(u&&$('#joinStatus').textContent.startsWith('Conectando'))$('#joinStatus').textContent=''});
+$('#joinBtn').onclick=join;
+const nowServer=()=>Date.now()+serverOffset,esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function pairState(){return pairId?room?.pairs?.[pairId]:null}
+function cycleNo(){return Number(pairState()?.cycle||1)}
+function myRole(){const p=pairState();return p?.waiterUid===user?.uid?'waiter':p?.clientUid===user?.uid?'client':null}
+function partnerUid(){const p=pairState(),r=myRole();return r==='waiter'?p?.clientUid:r==='client'?p?.waiterUid:null}
+function basePairData(){return pairId?room?.rounds?.[room.state?.round]?.pairs?.[pairId]||{}:{}}
+function roundPair(){const base=basePairData(),c=cycleNo();return base?.cycles?.[c]||(c===1?base:{})}
+function tRef(stage){return ref(db,`roleplays/${code}/rounds/${room.state.round}/pairs/${pairId}/cycles/${cycleNo()}/turns/${stage}/${user.uid}`)}
+async function join(){
+ if(!user){$('#joinStatus').textContent='Todavía conectando…';return}const c=$('#roomInput').value.replace(/\D/g,'').slice(0,6),n=$('#nickInput').value.trim().replace(/\s+/g,' ').slice(0,22);if(c.length!==6){$('#joinStatus').textContent='Escribe 6 números.';return}if(n.length<2){$('#joinStatus').textContent='Escribe tu nombre.';return}$('#joinBtn').disabled=true;
+ try{const snap=await get(ref(db,`roleplays/${c}`)),r=snap.val();if(!r||!['roleplay_restaurante_a1_multi_2026','roleplay_restaurante_a1_2026'].includes(r.kind))throw Error('No encuentro esta partida.');const ps=r.participants||{},already=!!ps[user.uid];if(!already&&Object.keys(ps).length>=20)throw Error('La partida está llena.');if(r.state?.status!=='lobby'&&!already)throw Error('La partida ya ha empezado.');code=c;nick=n;localStorage.setItem('restaurante_a1_nick',nick);if(!already)await set(ref(db,`roleplays/${code}/participants/${user.uid}`),{nick,joinedAt:serverTimestamp()});$('#join').classList.add('hidden');$('#waiting').classList.remove('hidden');$('#waitNick').textContent=nick;subscribe();}
+ catch(e){$('#joinStatus').textContent=e.message;$('#joinBtn').disabled=false}
+}
+function subscribe(){onValue(ref(db,`roleplays/${code}`),s=>{const oldCycle=cycleNo();room=s.val()||null;const newPair=room?.pairingOf?.[user.uid]||null;if(newPair!==pairId||oldCycle!==cycleNo()){pairId=newPair;mission=null;lastRenderKey='';missionSubKey=''}render()})}
+let missionUnsub=null;function subscribeMission(){const key=(pairId&&room?.state?.round)?`${room.state.round}/${pairId}/${cycleNo()}/${user?.uid}`:'';if(!key||key===missionSubKey)return;if(missionUnsub)missionUnsub();mission=null;missionSubKey=key;missionUnsub=onValue(ref(db,`roleplayMissions/${code}/${room.state.round}/${pairId}/${user.uid}`),s=>{mission=s.val()||null;renderTask(true)})}
+function render(){if(!room)return;const st=room.state||{};if(st.status==='lobby')return;if(st.status==='finished'){$('#waiting').classList.add('hidden');$('#game').classList.remove('hidden');$('#task').innerHTML='<div class="done"><div style="font-size:64px">👋</div><h2>Partida terminada</h2></div>';return}if(st.status!=='playing'||!pairId)return;subscribeMission();$('#waiting').classList.add('hidden');$('#game').classList.remove('hidden');const role=myRole(),p=pairState();if(!role||!p)return;$('#roundLabel').textContent=`MESA ${pairId.replace(/\D/g,'')} · VUELTA ${cycleNo()}/2`;$('#roleName').textContent=role==='waiter'?'🧑‍🍳 CAMARERO/A':'🧑 CLIENTE/A';$('#partnerName').textContent='Con: '+(room.participants?.[partnerUid()]?.nick||'—');renderScene();renderTask()}
+
+
+function tableNo(){const w=roundPair()?.turns?.[0]?.[pairState()?.waiterUid]||{};return Number(w.tableNo||0)}
+function renderScene(){
+  const stage=Math.min(7,Number(pairState()?.stage||0)),sc=$('#scene'),classes=['entering','drink','food','confirm','serving','mission','bill','goodbye'];
+  sc.className='scene '+classes[stage];
+  $('#sceneLabel').textContent=STAGE_NAMES[stage].toUpperCase();
+  $('#progressRail').innerHTML=STAGE_NAMES.map((_,i)=>`<div class="stepDot ${i<stage?'done':i===stage?'active':''}"></div>`).join('');
+  $('#stageCaption').textContent=`${stage+1}/8 · ${STAGE_NAMES[stage]}`;
+  const o=roundPair()?.order||{}, billTurn=roundPair()?.turns?.[6]||{}, cBill=billTurn[pairState()?.clientUid]||{},
+    dIcons=iconsFor(o.drinkKeys||o.drinkKey,DRINKS), fIcons=iconsFor(o.foodKeys||o.foodKey,FOODS);
+  $('#sceneOrder').innerHTML=[...dIcons,...fIcons].slice(0,6).map(e=>`<span>${e}</span>`).join('');
+  $('#scenePayment').innerHTML=cBill.paymentMethod?`<span>${cBill.paymentMethod==='tarjeta'?'💳 Tarjeta':'💶 Efectivo'}</span>`:'';
+  $('#sceneTray').textContent=(fIcons[0]||dIcons[0]||'🍽️');
+  const tNo=tableNo();
+  document.querySelectorAll('.tableSpot').forEach(el=>el.classList.toggle('active',Number(el.dataset.table)===tNo&&tNo>0));
+  const client=$('#clientAvatar'), waiter=$('#waiterAvatar');
+  client.classList.toggle('walking', stage===0 && !tNo);
+  client.classList.toggle('seated', tNo>0);
+  const tableEl=tNo?document.querySelector(`.tableSpot[data-table="${tNo}"]`):null;
+  if(tableEl){
+    const sceneW=sc.clientWidth,sceneH=sc.clientHeight,tw=tableEl.offsetWidth,th=tableEl.offsetHeight,tx=tableEl.offsetLeft,ty=tableEl.offsetTop;
+    const clientW=client.offsetWidth||48,waiterW=waiter.offsetWidth||48,baseBottom=Math.max(28,sceneH-(ty+th)+2);
+    let clientLeft=Math.min(sceneW-clientW-8,tx+tw-4),waiterLeft=Math.max(8,tx-waiterW+6);
+    if(stage===4)waiterLeft=Math.min(sceneW-waiterW-8,tx+tw/2-waiterW/2);
+    if(stage===6&&billTurn[pairState()?.waiterUid]?.replyText)waiterLeft=Math.min(sceneW-waiterW-8,tx+tw/2-waiterW/2);
+    client.style.left=clientLeft+'px';client.style.right='auto';client.style.bottom=baseBottom+'px';
+    waiter.style.left=waiterLeft+'px';waiter.style.bottom=baseBottom+'px';
+  }else{ client.style.left=''; client.style.right='-50px'; client.style.bottom='78px'; waiter.style.left='18px'; waiter.style.bottom='78px'; }
+  if(stage===6 && billTurn[pairState()?.waiterUid]?.replyText) sc.classList.add('showReceipt');
+  renderSpeechBubble();
+}
+function partnerTurn(stage){return roundPair()?.turns?.[stage]?.[partnerUid()]||{}}function myTurn(stage){return roundPair()?.turns?.[stage]?.[user.uid]||{}}function partnerText(stage,keys){const t=partnerTurn(stage);for(const k of keys)if(t[k])return t[k];return ''}
+function helpControls(stage,role){return `<div class="actions"><button type="button" class="helpBtn" id="helpBtn">💡 Necesito una pista</button></div><div id="helpPanel" class="helpPanel hidden"></div>`}
+function bindHelp(stage,role){const b=$('#helpBtn'),p=$('#helpPanel');if(!b||!p)return;b.onclick=()=>{const h=HINTS[`${stage}_${role}`]||['Piensa en una frase corta y clara.',''];p.innerHTML=`<b>Pista:</b> ${esc(h[0])}${h[1]?`<div class="actions"><button type="button" class="secondary" id="exampleBtn">Ver un ejemplo</button></div><div id="exampleBox" class="exampleBox hidden"></div>`:''}`;p.classList.remove('hidden');b.disabled=true;const eb=$('#exampleBtn'),ex=$('#exampleBox');if(eb&&ex)eb.onclick=()=>{ex.textContent=h[1];ex.classList.remove('hidden');eb.disabled=true}}}
+function formBox(stage,role,instruction,partner='',button='Enviar'){return `<div class="instruction">${instruction}</div>${partner?`<div class="partnerMsg"><b>${esc(room.participants?.[partnerUid()]?.nick||'Tu compañero')}:</b> ${esc(partner)}</div>`:''}<label>Tu frase</label><textarea id="textInput" placeholder="Escribe aquí…"></textarea>${helpControls(stage,role)}<div class="actions"><button id="sendBtn">${button}</button></div>`}
+function alreadyDone(text='✓ Ya has enviado tu parte.'){return `<div class="done"><div style="font-size:54px">✅</div><h3>${text}</h3><p class="muted">Espera a tu compañero.</p></div>`}function waiting(text){return `<div class="done"><div style="font-size:52px">⏳</div><h3>${esc(text)}</h3></div>`}
+
+function menuCards(items){return Object.entries(items).map(([k,v])=>`<button type="button" data-choice="${k}"><span class="foodEmoji">${v.emoji}</span><b>${esc(v.label)}</b><span class="price">${v.price.toFixed(2).replace('.',',')} €</span></button>`).join('')}
+function tableChooser(){return [1,2,3,4,5].map(n=>`<button type="button" data-table-choice="${n}">🍽️<br><b>Mesa ${n}</b><span class="tableNo">Elegir mesa</span></button>`).join('')}
+function paymentCards(){return `<div class="paymentGrid"><button type="button" data-pay="tarjeta">💳<br><b>Tarjeta</b></button><button type="button" data-pay="efectivo">💶<br><b>Efectivo</b></button></div>`}
+function arrayify(v){if(Array.isArray(v))return v; if(v&&typeof v==='object')return Object.values(v); return v?[v]:[]}
+function labelsFor(keys,items){return arrayify(keys).map(k=>items[k]?.label).filter(Boolean)}
+function iconsFor(keys,items){return arrayify(keys).map(k=>items[k]?.emoji).filter(Boolean)}
+function formatNatural(arr){arr=arr.filter(Boolean); if(!arr.length)return ''; if(arr.length===1)return arr[0]; if(arr.length===2)return `${arr[0]} y ${arr[1]}`; return `${arr.slice(0,-1).join(', ')} y ${arr[arr.length-1]}`}
+function orderText(){const o=roundPair()?.order||{};const drinks=labelsFor(o.drinkKeys||o.drinkKey,DRINKS),foods=labelsFor(o.foodKeys||o.foodKey,FOODS);const parts=[]; if(drinks.length)parts.push(formatNatural(drinks)); if(foods.length)parts.push(formatNatural(foods)); return formatNatural(parts)}
+function currentSpeech(){
+  const stage=Number(pairState()?.stage||0), turns=roundPair()?.turns?.[stage]||{}, w=turns[pairState()?.waiterUid]||{}, c=turns[pairState()?.clientUid]||{};
+  if(stage===0){if(c.seatedText)return{speaker:'client',text:c.seatedText};if(w.seatText)return{speaker:'waiter',text:w.seatText};if(c.text)return{speaker:'client',text:c.text};if(w.text)return{speaker:'waiter',text:w.text}}
+  if(stage===1){if(c.clientText)return{speaker:'client',text:c.clientText};if(w.askText)return{speaker:'waiter',text:w.askText}}
+  if(stage===2){if(c.clientText)return{speaker:'client',text:c.clientText};if(w.askText)return{speaker:'waiter',text:w.askText}}
+  if(stage===3){if(c.confirmOkText)return{speaker:'client',text:c.confirmOkText};if(w.confirmText)return{speaker:'waiter',text:w.confirmText}}
+  if(stage===4){if(c.thanksText)return{speaker:'client',text:c.thanksText};if(w.serveText)return{speaker:'waiter',text:w.serveText}}
+  if(stage===5){if(w.replyText)return{speaker:'waiter',text:w.replyText};if(c.text)return{speaker:'client',text:c.text}}
+  if(stage===6){if(c.paymentText)return{speaker:'client',text:c.paymentText};if(w.replyText)return{speaker:'waiter',text:w.replyText};if(c.text)return{speaker:'client',text:c.text}}
+  if(stage===7){if(c.goodbyeText)return{speaker:'client',text:c.goodbyeText};if(w.goodbyeText)return{speaker:'waiter',text:w.goodbyeText}}
+  return null;
+}
+function hideBubbles(){for(const id of ['#waiterBubble','#clientBubble']){const el=$(id);if(el){el.textContent='';el.classList.remove('show')}}}
+function anchorBubble(bubble,avatar){
+  if(!bubble||!avatar)return;
+  requestAnimationFrame(()=>{
+    const scene=$('#scene');if(!scene)return;
+    const sr=scene.getBoundingClientRect(),ar=avatar.getBoundingClientRect(),bw=bubble.offsetWidth||120,bh=bubble.offsetHeight||45;
+    let left=(ar.left-sr.left)+(ar.width/2)-(bw/2);
+    left=Math.max(8,Math.min(scene.clientWidth-bw-8,left));
+    let top=(ar.top-sr.top)-bh-16;
+    if(top<8)top=Math.min(scene.clientHeight-bh-8,(ar.bottom-sr.top)+10);
+    bubble.style.left=left+'px';bubble.style.top=top+'px';bubble.style.right='auto';bubble.style.bottom='auto';
+  });
+}
+function renderSpeechBubble(){
+  hideBubbles();const speech=currentSpeech();if(!speech?.text)return;
+  const bubble=$(speech.speaker==='waiter'?'#waiterBubble':'#clientBubble'),avatar=$(speech.speaker==='waiter'?'#waiterAvatar':'#clientAvatar');
+  if(!bubble||!avatar)return;bubble.textContent=speech.text;bubble.classList.add('show');anchorBubble(bubble,avatar);
+}
+function renderTask(force=false){
+  if(!room||room.state?.status!=='playing'||!pairId)return;
+  const stage=Number(pairState()?.stage||0),role=myRole(),cycle=cycleNo(),
+    key=`${room.state.round}|${pairId}|${cycle}|${stage}|${role}|${JSON.stringify(roundPair()?.turns||{})}|${JSON.stringify(pairState()?.swapReady||{})}|${JSON.stringify(roundPair()?.order||{})}|${mission?.key||''}`;
+  if(!force&&key===lastRenderKey)return;lastRenderKey=key;selected=[];const box=$('#task');
+  if(stage>=8){renderFinishedCycle(box);return}
+  const mine=myTurn(stage), waiterNick=esc(room.participants?.[pairState()?.waiterUid]?.nick||'Camarero'), clientNick=esc(room.participants?.[pairState()?.clientUid]?.nick||'Cliente');
+  if(stage===0){
+    const waiterUid=pairState()?.waiterUid, waiterStage=roundPair()?.turns?.[0]?.[waiterUid]||{}, tableChosen=Number(waiterStage.tableNo||0);
+    if(role==='waiter'){
+      if(!mine.text){ box.innerHTML=formBox(stage,role,'👋 Saluda al cliente y pregunta para cuántas personas es la mesa.','','Enviar'); bindHelp(stage,role);bindText(stage,'text'); }
+      else if(!waiterStage.tableNo){ box.innerHTML=`<div class="instruction">🪑 Ya habéis hablado. Ahora elige una de las 5 mesas y acompaña al cliente.</div><div class="tableChooser">${tableChooser()}</div><label>Tu frase</label><textarea id="textInput" placeholder="Escribe aquí…"></textarea>${helpControls(stage,role)}<div class="actions"><button id="sendBtn" disabled>Llevar a la mesa</button></div>`; bindHelp(stage,role);bindTableChoice(stage); }
+      else if(!partnerTurn(stage).seatedText){ box.innerHTML=waiting(`El cliente está yendo a la mesa ${waiterStage.tableNo}…`); }
+      else box.innerHTML=alreadyDone('🪑 Mesa elegida y cliente sentado.');
+    } else {
+      const msg=partnerText(stage,['text']);
+      if(!mine.text){ box.innerHTML=msg?formBox(stage,role,'👥 Responde: ¿cuántas personas sois?',msg,'Responder'):waiting('Espera el saludo del camarero.'); if(msg){bindHelp(stage,role);bindText(stage,'text');} }
+      else if(!tableChosen){ box.innerHTML=waiting('El camarero está buscando una mesa…'); }
+      else if(!mine.seatedText){ box.innerHTML=`<div class="instruction">🪑 El camarero te lleva a la <b>mesa ${tableChosen}</b>. Mira el movimiento y siéntate.</div><div class="partnerMsg"><b>${waiterNick}:</b> ${esc(waiterStage.seatText||'Esta mesa, por favor.')}</div><label>Tu frase</label><textarea id="textInput" placeholder="Escribe aquí…"></textarea>${helpControls(stage,role)}<div class="actions"><button id="sendBtn">Sentarse</button></div>`; bindHelp(stage,role);bindText(stage,'seatedText'); }
+      else box.innerHTML=alreadyDone('🪑 Ya estás sentado/a en la mesa.');
+    }
+  }
+  if(stage===1){
+    if(role==='waiter'){ box.innerHTML=mine.askText?alreadyDone():formBox(stage,role,'🥤 Pregunta al cliente qué quiere tomar.','','Preguntar'); if(!mine.askText){bindHelp(stage,role);bindText(stage,'askText')} }
+    else {
+      const msg=partnerText(stage,['askText']);
+      if(mine.clientText)box.innerHTML=alreadyDone();
+      else if(!msg)box.innerHTML=waiting('Espera la pregunta del camarero.');
+      else { box.innerHTML=`<div class="instruction">🥤 Mira la carta. Puedes elegir <b>varias bebidas</b> y responder con tu propia frase.</div><div class="partnerMsg"><b>${waiterNick}:</b> ${esc(msg)}</div><div class="menu">${menuCards(DRINKS)}</div><div id="choiceSummary"></div><label>Tu frase</label><textarea id="textInput" placeholder="Escribe aquí…"></textarea>${helpControls(stage,role)}<div class="actions"><button id="sendBtn" disabled>Enviar pedido</button></div>`;bindHelp(stage,role);bindMultiChoice(stage,'drinkKeys','clientText',DRINKS,'bebida'); }
+    }
+  }
+  if(stage===2){
+    if(role==='waiter'){ box.innerHTML=mine.askText?alreadyDone():formBox(stage,role,'🍽️ Pregunta al cliente qué quiere comer.','','Preguntar'); if(!mine.askText){bindHelp(stage,role);bindText(stage,'askText')} }
+    else {
+      const msg=partnerText(stage,['askText']);
+      if(mine.clientText)box.innerHTML=alreadyDone();
+      else if(!msg)box.innerHTML=waiting('Espera la pregunta del camarero.');
+      else { box.innerHTML=`<div class="instruction">🍽️ Mira la carta. Puedes elegir <b>varios platos</b> y responder con tu propia frase.</div><div class="partnerMsg"><b>${waiterNick}:</b> ${esc(msg)}</div><div class="menu">${menuCards(FOODS)}</div><div id="choiceSummary"></div><label>Tu frase</label><textarea id="textInput" placeholder="Escribe aquí…"></textarea>${helpControls(stage,role)}<div class="actions"><button id="sendBtn" disabled>Enviar pedido</button></div>`;bindHelp(stage,role);bindMultiChoice(stage,'foodKeys','clientText',FOODS,'plato'); }
+    }
+  }
+  if(stage===3){
+    const o=roundPair()?.order||{}, orderLine=orderText();
+    if(role==='waiter'){
+      box.innerHTML=mine.confirmText?alreadyDone('📝 Pedido repetido.'): `<div class="instruction">📝 Repite al cliente lo que ha pedido.</div><div class="partnerMsg"><b>${clientNick}:</b> ${esc(partnerTurn(2).clientText || partnerTurn(1).clientText || '')}</div><div class="bill"><div class="billRow"><span>Bebidas</span><span>${formatNatural(labelsFor(o.drinkKeys||o.drinkKey,DRINKS))||'—'}</span></div><div class="billRow"><span>Comida</span><span>${formatNatural(labelsFor(o.foodKeys||o.foodKey,FOODS))||'—'}</span></div></div><label>Tu frase</label><textarea id="textInput" placeholder="Escribe aquí…"></textarea>${helpControls(stage,role)}<div class="actions"><button id="sendBtn">Repetir pedido</button></div>`;
+      if(!mine.confirmText){bindHelp(stage,role);bindText(stage,'confirmText')}
+    } else {
+      const msg=partnerText(stage,['confirmText']);
+      box.innerHTML=mine.confirmOkText?alreadyDone(): msg? formBox(stage,role,'✅ Escucha al camarero y confirma si el pedido es correcto.',msg,'Confirmar'): waiting('El camarero está repitiendo tu pedido…');
+      if(msg&&!mine.confirmOkText){bindHelp(stage,role);bindText(stage,'confirmOkText')}
+    }
+  }
+  if(stage===4){
+    if(role==='waiter'){ box.innerHTML=mine.serveText?alreadyDone('🍽️ Pedido servido.'):formBox(stage,role,'🍽️ Lleva la comida a la mesa y di una frase corta.','','Servir pedido'); if(!mine.serveText){bindHelp(stage,role);bindText(stage,'serveText')} }
+    else { const msg=partnerText(stage,['serveText']); box.innerHTML=mine.thanksText?alreadyDone():msg?formBox(stage,role,'🙏 Reacciona y da las gracias.',msg,'Responder'):waiting('El camarero está trayendo el pedido…'); if(msg&&!mine.thanksText){bindHelp(stage,role);bindText(stage,'thanksText')} }
+  }
+  if(stage===5){
+    if(role==='client'){
+      if(mine.text)box.innerHTML=alreadyDone('🕵️ Petición enviada.');
+      else if(!mission)box.innerHTML=waiting('Preparando tu misión secreta…');
+      else { box.innerHTML=`<div class="instruction">🕵️ MISIÓN SECRETA<br><span style="font-size:24px">${esc(mission.emoji)} Necesitas <b>${esc(mission.label)}</b>.</span><br><span class="muted">Pídeselo al camarero. No le enseñes esta tarjeta.</span></div><label>Tu frase</label><textarea id="textInput" placeholder="Escribe aquí…"></textarea>${helpControls(stage,role)}<div class="actions"><button id="sendBtn">Pedir</button></div>`; bindHelp(stage,role);bindText(stage,'text'); }
+    } else {
+      const msg=partnerText(stage,['text']), fb=roundPair()?.feedback?.[5]?.[user.uid], wrong=fb?.kind==='wrong-item'&&fb?.selectedItem===mine.selectedItem;
+      if(mine.replyText&&!wrong) box.innerHTML=alreadyDone('✅ Has respondido.');
+      else if(!msg) box.innerHTML=waiting('Espera la petición del cliente.');
+      else { box.innerHTML=`<div class="instruction">👂 Lee el mensaje. Elige lo que ha pedido el cliente, repítelo y responde.</div><div class="partnerMsg"><b>${clientNick}:</b> ${esc(msg)}</div><div class="checklist">${ITEMS.map(([k,e,l])=>`<button type="button" data-item="${k}">${e} ${l}</button>`).join('')}</div><div id="wrong" class="wrong ${wrong?'':'hidden'}">No es eso. Lee otra vez el mensaje del cliente 👀</div><label>Primero repite el pedido y responde</label><textarea id="textInput" placeholder="Escribe aquí…"></textarea>${helpControls(stage,role)}<div class="actions"><button id="sendBtn" disabled>Confirmar y responder</button></div>`; bindHelp(stage,role);bindMissionWaiter(stage); }
+    }
+  }
+  if(stage===6){
+    const bill=buildBill(), wTurn=roundPair()?.turns?.[6]?.[pairState()?.waiterUid]||{};
+    if(role==='client'){
+      if(!mine.text){ box.innerHTML=`<div class="instruction">🧾 Ya habéis terminado. Pide la cuenta.</div><label>Tu frase</label><textarea id="textInput" placeholder="Escribe aquí…"></textarea>${helpControls(stage,role)}<div class="actions"><button id="sendBtn">Pedir la cuenta</button></div>`; bindHelp(stage,role);bindText(stage,'text'); }
+      else if(!wTurn.replyText) box.innerHTML=waiting('El camarero está trayendo la cuenta…');
+      else if(!mine.paymentText){ box.innerHTML=`<div class="instruction">💳 El camarero ya ha traído la cuenta. Mira el total y elige cómo quieres pagar.</div><div class="partnerMsg"><b>${waiterNick}:</b> ${esc(wTurn.replyText)}</div>${bill}<div class="instruction" style="margin-top:10px">¿Tarjeta o efectivo?</div>${paymentCards()}<label>Tu frase</label><textarea id="textInput" placeholder="Escribe aquí…"></textarea>${helpControls(stage,role)}<div class="actions"><button id="sendBtn" disabled>Elegir pago</button></div>`; bindHelp(stage,role);bindPayment(stage); }
+      else box.innerHTML=alreadyDone('💳 Forma de pago elegida.');
+    } else {
+      const msg=partnerText(stage,['text']), clientPaid=partnerTurn(stage).paymentText;
+      if(!msg) box.innerHTML=waiting('Espera a que el cliente pida la cuenta.');
+      else if(!mine.replyText){ box.innerHTML=`<div class="instruction">💶 El cliente ha pedido la cuenta. Mírala, tráela a la mesa y di el total.</div><div class="partnerMsg"><b>${clientNick}:</b> ${esc(msg)}</div>${bill}<label>Tu frase</label><textarea id="textInput" placeholder="Escribe aquí…"></textarea>${helpControls(stage,role)}<div class="actions"><button id="sendBtn">Traer la cuenta</button></div>`; bindHelp(stage,role);bindText(stage,'replyText'); }
+      else if(!clientPaid) box.innerHTML=alreadyDone('🧾 Cuenta entregada. Espera la forma de pago del cliente.');
+      else box.innerHTML=alreadyDone('💳 El cliente ya ha elegido cómo pagar.');
+    }
+  }
+  if(stage===7){
+    if(role==='waiter'){ box.innerHTML=mine.goodbyeText?alreadyDone():formBox(stage,role,'👋 Despídete del cliente.','','Despedirse'); if(!mine.goodbyeText){bindHelp(stage,role);bindText(stage,'goodbyeText')} }
+    else { const msg=partnerText(stage,['goodbyeText']); box.innerHTML=mine.goodbyeText?alreadyDone():msg?formBox(stage,role,'👋 Responde y despídete.',msg,'Despedirse'):waiting('Espera la despedida del camarero.'); if(msg&&!mine.goodbyeText){bindHelp(stage,role);bindText(stage,'goodbyeText')} }
+  }
+}
+function renderFinishedCycle(box){const c=cycleNo();if(c>=2){box.innerHTML='<div class="done"><div style="font-size:70px">🏁</div><h2>¡Actividad completada!</h2><p>Has practicado los dos roles. Puedes esperar a las otras mesas.</p></div>';return}const ready=pairState()?.swapReady||{},mine=ready[user.uid]===true,other=ready[partnerUid()]===true;box.innerHTML=`<div class="swapCard done"><div style="font-size:62px">🎉</div><h2>¡Primera vuelta terminada!</h2><p>No tienes que esperar a las otras mesas. Cuando los dos estéis listos, podéis cambiar los roles.</p><div class="readyPeople"><span class="readyChip ${mine?'yes':''}">${mine?'✓':'○'} Tú</span><span class="readyChip ${other?'yes':''}">${other?'✓':'○'} ${esc(room.participants?.[partnerUid()]?.nick||'Compañero/a')}</span></div>${mine?'<button class="secondary" disabled>✓ Listo/a para cambiar</button>':'<button id="studentSwapBtn">🔄 Estoy listo/a para cambiar de rol</button>'}<p class="muted" style="margin-top:10px">El cambio empieza cuando los dos pulsáis el botón.</p></div>`;const b=$('#studentSwapBtn');if(b)b.onclick=async()=>{b.disabled=true;await set(ref(db,`roleplays/${code}/pairs/${pairId}/swapReady/${user.uid}`),true)}}
+function bindText(stage,key){const btn=$('#sendBtn'),ta=$('#textInput');if(!btn||!ta)return;btn.onclick=async()=>{const text=ta.value.trim();if(!text)return;btn.disabled=true;await update(tRef(stage),{[key]:text,at:nowServer()})}}
+function bindMultiChoice(stage,choiceKey,textKey,items,label='elemento'){selected=[];document.querySelectorAll('[data-choice]').forEach(b=>b.onclick=()=>{const key=b.dataset.choice; selected=selected.includes(key)?selected.filter(x=>x!==key):[...selected,key]; document.querySelectorAll('[data-choice]').forEach(x=>x.classList.toggle('selected',selected.includes(x.dataset.choice))); const sum=$('#choiceSummary'); if(sum){ const names=selected.map(k=>items[k]?.label).filter(Boolean); const emojis=selected.map(k=>items[k]?.emoji).filter(Boolean).join(' '); sum.innerHTML=names.length?`<div class="choiceSummary"><span class="big">${emojis||'✅'}</span><div><b>Tu elección: ${esc(formatNatural(names))}</b><div class="muted">Ahora escríbelo al camarero.</div></div></div>`:'' } $('#sendBtn').disabled=selected.length===0}); $('#sendBtn').onclick=async()=>{const text=$('#textInput').value.trim(); if(!selected.length||!text)return; $('#sendBtn').disabled=true; await update(tRef(stage),{[choiceKey]:selected,[textKey]:text,at:nowServer()})}}
+function bindTableChoice(stage){document.querySelectorAll('[data-table-choice]').forEach(b=>b.onclick=()=>{selected=b.dataset.tableChoice;document.querySelectorAll('[data-table-choice]').forEach(x=>x.classList.toggle('selected',x===b));$('#sendBtn').disabled=false});$('#sendBtn').onclick=async()=>{const text=$('#textInput').value.trim();if(!selected||!text)return;$('#sendBtn').disabled=true;await update(tRef(stage),{tableNo:Number(selected),seatText:text,at:nowServer()})}}
+function bindPayment(stage){document.querySelectorAll('[data-pay]').forEach(b=>b.onclick=()=>{selected=b.dataset.pay;document.querySelectorAll('[data-pay]').forEach(x=>x.classList.toggle('selected',x===b));$('#sendBtn').disabled=false});$('#sendBtn').onclick=async()=>{const text=$('#textInput').value.trim();if(!selected||!text)return;$('#sendBtn').disabled=true;await update(tRef(stage),{paymentMethod:selected,paymentText:text,at:nowServer()})}}
+function bindMissionWaiter(stage){document.querySelectorAll('[data-item]').forEach(b=>b.onclick=()=>{selected=b.dataset.item;document.querySelectorAll('[data-item]').forEach(x=>x.classList.toggle('selected',x===b));$('#sendBtn').disabled=false;$('#wrong').classList.add('hidden')});$('#sendBtn').onclick=async()=>{const text=$('#textInput').value.trim();if(!selected||!text)return;$('#sendBtn').disabled=true;await update(tRef(stage),{selectedItem:selected,replyText:text,at:nowServer()})}}
+function buildBill(){const o=roundPair()?.order||{},drinks=arrayify(o.drinkKeys||o.drinkKey),foods=arrayify(o.foodKeys||o.foodKey);let rows='',total=0;for(const k of drinks){const d=DRINKS[k];if(!d)continue;total+=Number(d.price||0);rows+=`<div class="billRow"><span>${esc(d.label)}</span><span>${d.price.toFixed(2).replace('.',',')} €</span></div>`}for(const k of foods){const f=FOODS[k];if(!f)continue;total+=Number(f.price||0);rows+=`<div class="billRow"><span>${esc(f.label)}</span><span>${f.price.toFixed(2).replace('.',',')} €</span></div>`}return `<div class="bill"><b>LA CUENTA</b>${rows}<div class="billRow total"><span>TOTAL</span><span>${total.toFixed(2).replace('.',',')} €</span></div></div>`}
+setInterval(()=>{if(!room||room.state?.status!=='playing'||!pairId)return;const end=Number(pairState()?.cycleEndsAt||room.state?.roundEndsAt||0);const left=Math.max(0,end-nowServer()),m=Math.floor(left/60000),s=Math.floor((left%60000)/1000);$('#timer').innerHTML=`<small>TIEMPO · VUELTA ${cycleNo()}/2</small>${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`},250);
+</script></body></html>
