@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Restaurante A1 · Profesor</title>
+<style>
+:root{--bg:#f7f3ea;--ink:#1f2937;--muted:#6b7280;--card:#fff;--line:#e7dfd0;--accent:#a84b35;--green:#2f7d5b;--gold:#d89b3c;--blue:#356aa0}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;background:linear-gradient(180deg,#fffaf2,var(--bg));color:var(--ink)}
+.wrap{max-width:1250px;margin:auto;padding:22px}.top,.statusLine{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.badge{display:inline-block;padding:7px 11px;border-radius:999px;background:#efe3d0;color:#6c4f2a;font-weight:800;font-size:12px}.card{background:var(--card);border:1px solid var(--line);border-radius:24px;box-shadow:0 14px 38px rgba(68,52,31,.08);padding:22px;margin-top:16px}.hidden{display:none!important}
+button{border:0;border-radius:14px;padding:12px 16px;font-weight:800;cursor:pointer;background:var(--accent);color:white;font-size:15px}button.secondary{background:#ece7df;color:#41382d}button.green{background:var(--green)}button.blue{background:var(--blue)}button:disabled{opacity:.4;cursor:not-allowed}.roomCode{font-size:54px;font-weight:900;letter-spacing:8px;color:var(--accent);margin:8px 0}.joinLink{word-break:break-all;color:#6b4d2e}.muted{color:var(--muted);font-size:13px}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.bigCenter{text-align:center;padding:26px}
+.lobbyGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}.student{padding:13px 14px;border:1px solid var(--line);border-radius:16px;background:#fffdf9;font-weight:850}.student span{font-size:12px;color:var(--muted);display:block;margin-top:4px}.pairGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin-top:16px}.pairCard{border:1px solid var(--line);border-radius:22px;background:#fff;padding:17px;box-shadow:0 8px 20px rgba(50,40,28,.05)}.pairHead{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.pairNo{font-weight:950;font-size:20px}.pairStage{font-size:12px;font-weight:900;background:#f1e8dc;border-radius:999px;padding:6px 9px}.roles{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.roleBox{border:1px solid var(--line);border-radius:14px;padding:10px;background:#fffaf4}.roleLabel{font-size:10px;font-weight:900;color:var(--muted);letter-spacing:.08em}.roleName{font-size:17px;font-weight:900;margin-top:3px}.progress{height:9px;background:#efe9df;border-radius:999px;overflow:hidden}.progress>div{height:100%;background:linear-gradient(90deg,var(--gold),var(--accent));transition:.3s}.miniLog{margin-top:11px;max-height:145px;overflow:auto}.msg{font-size:13px;padding:8px 10px;border-radius:11px;background:#f7f3ed;margin:6px 0}.msg b{color:#8f3f2f}.mission{font-size:12px;margin-top:9px;padding:8px 10px;border:1px dashed #d6a75c;background:#fff7df;border-radius:12px}.timer{font-variant-numeric:tabular-nums;font-size:34px;font-weight:950;color:var(--accent)}.summary{display:flex;gap:10px;flex-wrap:wrap}.pill{padding:8px 11px;border-radius:999px;background:#f0ebe3;font-size:13px;font-weight:850}.donePill{background:#e4f3eb;color:#266044}.waitingPill{background:#fff1d7;color:#825d19}
+@media(max-width:700px){.wrap{padding:14px}.roomCode{font-size:40px}.pairGrid{grid-template-columns:1fr}.roles{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><div><span class="badge">A1 · juego de rol · restaurante · multijugador</span><h1 style="margin:8px 0 0">🍽️ Restaurante — panel del profesor</h1></div><div id="authStatus" class="muted">Conectando…</div></div>
+
+  <section id="createCard" class="card bigCenter">
+    <h2>Varias mesas al mismo tiempo</h2>
+    <p class="muted">2 alumnos = 1 mesa · 4 = 2 mesas · 6 = 3 mesas… Cada pareja avanza a su ritmo.</p>
+    <button id="createBtn">Crear partida</button><div id="createStatus" class="muted" style="margin-top:10px"></div>
+  </section>
+
+  <section id="lobby" class="card hidden">
+    <div class="statusLine"><div><div class="muted">Código de la partida</div><div id="roomCode" class="roomCode">------</div></div><div><button class="secondary" id="copyBtn">Copiar enlace</button><div id="joinLink" class="joinLink muted"></div></div></div>
+    <h3>Alumnos conectados <span id="count" class="muted"></span></h3><div id="lobbyPeople" class="lobbyGrid"></div>
+    <div class="actions"><button id="startBtn" class="green" disabled>Formar parejas y empezar 5:00</button><button id="newRoomBtn" class="secondary">Nueva partida</button></div>
+    <div id="lobbyStatus" class="muted" style="margin-top:10px"></div>
+  </section>
+
+  <section id="game" class="hidden">
+    <section class="card">
+      <div class="statusLine"><div><div id="roundLabel" class="muted">RONDA 1</div><h2 style="margin:4px 0">Mesas en juego</h2></div><div id="timer" class="timer">05:00</div></div>
+      <div id="summary" class="summary"></div>
+      <div class="actions"><button id="swapBtn" disabled>🔄 Cambiar roles de mesas listas</button><button id="finishBtn" class="secondary">Terminar partida</button></div>
+      <div id="swapInfo" class="muted" style="margin-top:8px">Cada pareja puede pedir el cambio por su cuenta. Este botón sirve como control del profesor para las mesas terminadas o sin tiempo.</div>
+    </section>
+    <div id="pairGrid" class="pairGrid"></div>
+  </section>
+</div>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js';
+import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js';
+import { getDatabase, ref, get, set, update, onValue, serverTimestamp, runTransaction } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js';
+import { firebaseConfig } from './firebase-config.js';
+
+const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getDatabase(app),$=s=>document.querySelector(s);
+let user=null,code=null,room=null,serverOffset=0,unsubRoom=null,reconciling=false,starting=false,missionCache={};
+const STAGES=['Entrada','Bebida','Comida','Servimos','Misión sorpresa','La cuenta','Despedida','¡Completado!'];
+const MISSIONS=[
+ {key:'servilleta',label:'una servilleta',emoji:'🧻'},{key:'tenedor',label:'un tenedor',emoji:'🍴'},{key:'cuchillo',label:'un cuchillo',emoji:'🔪'},{key:'cuchara',label:'una cuchara',emoji:'🥄'},{key:'pan',label:'pan',emoji:'🥖'},{key:'agua',label:'más agua',emoji:'💧'},{key:'sal',label:'sal',emoji:'🧂'}
+];
+const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const nowServer=()=>Date.now()+serverOffset,code6=()=>String(Math.floor(100000+Math.random()*900000));
+const participants=()=>Object.entries(room?.participants||{});
+const pairs=()=>Object.entries(room?.pairs||{}).sort(([a],[b])=>a.localeCompare(b,undefined,{numeric:true}));
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+
+onValue(ref(db,'.info/serverTimeOffset'),s=>serverOffset=Number(s.val()||0));
+signInAnonymously(auth).catch(e=>$('#authStatus').textContent='Firebase: '+e.message);
+onAuthStateChanged(auth,u=>{user=u;$('#authStatus').textContent=u?'✓ Firebase conectado':'Conectando…'});
+$('#createBtn').onclick=createRoom;$('#newRoomBtn').onclick=()=>location.reload();$('#startBtn').onclick=()=>startRound(false);$('#swapBtn').onclick=swapEligiblePairs;
+$('#finishBtn').onclick=async()=>{if(code)await update(ref(db,`roleplays/${code}/state`),{status:'finished',finishedAt:serverTimestamp()})};
+$('#copyBtn').onclick=async()=>{const u=$('#joinLink').textContent;try{await navigator.clipboard.writeText(u);$('#copyBtn').textContent='✓ Copiado'}catch{prompt('Copia el enlace:',u)}};
+
+async function createRoom(){
+ if(!user){$('#createStatus').textContent='Todavía conectando…';return}$('#createBtn').disabled=true;
+ try{for(let i=0;i<12;i++){const c=code6(),snap=await get(ref(db,`roleplays/${c}`));if(!snap.exists()){code=c;await set(ref(db,`roleplays/${c}`),{kind:'roleplay_restaurante_a1_multi_2026',hostUid:user.uid,createdAt:serverTimestamp(),state:{status:'lobby',round:0,roundEndsAt:0}});openRoom();return}}throw Error('No pude crear un código.');}
+ catch(e){$('#createStatus').textContent=e.message;$('#createBtn').disabled=false}
+}
+function openRoom(){
+ $('#createCard').classList.add('hidden');$('#lobby').classList.remove('hidden');$('#roomCode').textContent=code;
+ const u=new URL('restaurante-a1-alumno.html',location.href);u.searchParams.set('room',code);$('#joinLink').textContent=u.href;
+ if(unsubRoom)unsubRoom();unsubRoom=onValue(ref(db,`roleplays/${code}`),s=>{room=s.val()||null;render();hostReconcile()});
+}
+function render(){
+ if(!room)return;const st=room.state||{},ps=participants();$('#count').textContent=`(${ps.length})`;
+ if(st.status==='lobby'){
+   $('#lobby').classList.remove('hidden');$('#game').classList.add('hidden');
+   $('#lobbyPeople').innerHTML=ps.length?ps.map(([,p],i)=>`<div class="student">${i+1}. ${esc(p.nick)}<span>listo/a</span></div>`).join(''):'<div class="muted">Esperando alumnos…</div>';
+   const valid=ps.length>=2&&ps.length%2===0;$('#startBtn').disabled=!valid;
+   $('#lobbyStatus').textContent=ps.length<2?'Necesitas al menos 2 alumnos.':ps.length%2?'Hay un número impar. Espera a un alumno más.':`✓ ${ps.length/2} ${ps.length===2?'mesa lista':'mesas listas'} para jugar.`;return;
+ }
+ $('#lobby').classList.add('hidden');$('#game').classList.remove('hidden');
+ if(st.status==='finished'){$('#pairGrid').innerHTML='<section class="card"><h2>👋 Partida terminada</h2></section>';$('#swapBtn').disabled=true;return}
+ $('#roundLabel').textContent=`RONDA ${st.round||1} · ${pairs().length} ${pairs().length===1?'MESA':'MESAS'}`;renderPairs();renderSummary();updateSwapButton();
+}
+function renderSummary(){const pp=pairs(),done=pp.filter(([,p])=>pairFullyDone(p)).length,second=pp.filter(([,p])=>Number(p.cycle||1)===2).length;$('#summary').innerHTML=`<div class="pill">👥 ${participants().length} alumnos</div><div class="pill">🍽️ ${pp.length} mesas</div><div class="pill">🔄 ${second}/${pp.length} en segunda vuelta</div><div class="pill ${done===pp.length?'donePill':'waitingPill'}">🏁 ${done}/${pp.length} completas</div>`}
+function pairBaseData(pid){return room?.rounds?.[room.state.round]?.pairs?.[pid]||{}}
+function pairRoundData(pid){const p=room?.pairs?.[pid]||{},c=Number(p.cycle||1),base=pairBaseData(pid);return base?.cycles?.[c]||(c===1?base:{})}
+function pairTimeLeft(p){return Math.max(0,Number(p.cycleEndsAt||room?.state?.roundEndsAt||0)-nowServer())}
+function fmtTime(ms){const m=Math.floor(ms/60000),s=Math.floor((ms%60000)/1000);return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')}
+function pairFullyDone(p){return Number(p.cycle||1)>=2&&Number(p.stage||0)>=8}
+function renderPairs(){
+ const html=pairs().map(([pid,p],idx)=>{const stage=Math.min(7,Number(p.stage||0)),cycle=Number(p.cycle||1),w=room.participants?.[p.waiterUid]?.nick||'—',c=room.participants?.[p.clientUid]?.nick||'—',rd=pairRoundData(pid),turns=rd.turns||{},rows=[];
+   for(const [st,byUid] of Object.entries(turns))for(const [uid,t] of Object.entries(byUid||{})){const nick=room.participants?.[uid]?.nick||'Alumno';for(const k of ['text','askText','clientText','confirmText','confirmOkText','serveText','thanksText','replyText','goodbyeText','seatText','seatedText','paymentText'])if(t?.[k])rows.push({at:t.at||0,nick,text:t[k]})}
+   rows.sort((a,b)=>a.at-b.at);const last=rows.slice(-5).map(x=>`<div class="msg"><b>${esc(x.nick)}:</b> ${esc(x.text)}</div>`).join('')||'<div class="muted">Todavía sin diálogo.</div>';
+   const mission=missionCache[`${room.state.round}/${pid}/${cycle}`]||missionCache[`${room.state.round}/${pid}`],ready=p.swapReady||{},readyCount=Object.values(ready).filter(Boolean).length, tableNo=Number((turns[0]||{})[p.waiterUid]?.tableNo||0), payment=(turns[6]||{})[p.clientUid]?.paymentMethod||'';
+   return `<section class="pairCard"><div class="pairHead"><div class="pairNo">🍽️ Mesa ${idx+1}</div><div class="pairStage">Vuelta ${cycle}/2 · ${stage>=8?'FIN':stage+1+'/8 · '+esc(STAGES[stage])}</div></div><div class="roles"><div class="roleBox"><div class="roleLabel">CAMARERO/A</div><div class="roleName">🧑‍🍳 ${esc(w)}</div></div><div class="roleBox"><div class="roleLabel">CLIENTE/A</div><div class="roleName">🧑 ${esc(c)}</div></div></div><div class="progress"><div style="width:${Math.min(stage,8)/8*100}%"></div></div><div class="muted" style="margin-top:8px">⏱ <span data-pair-timer="${pid}">${fmtTime(pairTimeLeft(p))}</span>${cycle===1&&stage>=8?` · 🔄 listos: ${readyCount}/2`:''}${tableNo?` · 🪑 mesa ${tableNo}`:''}${payment?` · ${payment==='tarjeta'?'💳 tarjeta':'💶 efectivo'}`:''}</div>${stage===5&&mission?`<div class="mission">🔐 Misión: ${esc(mission.emoji)} ${esc(mission.label)}</div>`:''}<div class="miniLog">${last}</div></section>`
+ }).join('');$('#pairGrid').innerHTML=html||'<div class="card">Sin parejas.</div>';
+ fetchVisibleMissions();
+}
+async function fetchVisibleMissions(){if(!room?.state?.round)return;for(const [pid,p] of pairs()){if(Number(p.stage)!==5)continue;const cycle=Number(p.cycle||1),key=`${room.state.round}/${pid}/${cycle}`;if(missionCache[key])continue;const s=await get(ref(db,`roleplayMissions/${code}/${room.state.round}/${pid}/${p.clientUid}`));if(s.exists()){missionCache[key]=s.val();renderPairs();return}}
+}
+async function startRound(){
+ if(starting||!room)return;const ps=participants();if(ps.length<2||ps.length%2)return;starting=true;
+ try{
+   const round=Number(room.state?.round||0)+1,ids=shuffle(ps.map(([uid])=>uid)),pairDefs={},pairing={},start=nowServer();
+   for(let i=0;i<ids.length;i+=2){const pid='p'+(i/2+1),roles=Math.random()<.5?[ids[i],ids[i+1]]:[ids[i+1],ids[i]];pairDefs[pid]={waiterUid:roles[0],clientUid:roles[1],stage:0,cycle:1,cycleEndsAt:start+300000};pairing[roles[0]]=pid;pairing[roles[1]]=pid}
+   const rootPatch={};rootPatch[`roleplays/${code}/pairs`]=pairDefs;rootPatch[`roleplays/${code}/pairingOf`]=pairing;rootPatch[`roleplays/${code}/state`]={status:'playing',round,startedAt:start,roundEndsAt:start+300000};rootPatch[`roleplays/${code}/rounds/${round}/startedAt`]=serverTimestamp();
+   for(const [pid,p] of Object.entries(pairDefs)){rootPatch[`roleplays/${code}/rounds/${round}/pairs/${pid}/cycles/1/startedAt`]=serverTimestamp();const mission=MISSIONS[Math.floor(Math.random()*MISSIONS.length)];rootPatch[`roleplayMissions/${code}/${round}/${pid}/${p.clientUid}`]=mission;missionCache[`${round}/${pid}/1`]=mission}
+   await update(ref(db),rootPatch);
+ }finally{starting=false}
+}
+async function swapPair(pid,p){
+ if(Number(p.cycle||1)!==1)return;const start=nowServer(),r=Number(room.state.round),mission=MISSIONS[Math.floor(Math.random()*MISSIONS.length)],newWaiter=p.clientUid,newClient=p.waiterUid,patch={};
+ patch[`roleplays/${code}/pairs/${pid}/waiterUid`]=newWaiter;patch[`roleplays/${code}/pairs/${pid}/clientUid`]=newClient;patch[`roleplays/${code}/pairs/${pid}/stage`]=0;patch[`roleplays/${code}/pairs/${pid}/cycle`]=2;patch[`roleplays/${code}/pairs/${pid}/cycleEndsAt`]=start+300000;patch[`roleplays/${code}/pairs/${pid}/swapReady`]=null;patch[`roleplays/${code}/rounds/${r}/pairs/${pid}/cycles/2/startedAt`]=serverTimestamp();patch[`roleplayMissions/${code}/${r}/${pid}/${newClient}`]=mission;missionCache[`${r}/${pid}/2`]=mission;await update(ref(db),patch)
+}
+async function swapEligiblePairs(){if(starting||!room)return;starting=true;try{for(const [pid,p] of pairs()){if(Number(p.cycle||1)===1&&(Number(p.stage||0)>=7||pairTimeLeft(p)<=0))await swapPair(pid,p)}}finally{starting=false}}
+async function hostReconcile(){
+ if(reconciling||!room||room.hostUid!==user?.uid||room.state?.status!=='playing')return;reconciling=true;
+ try{const r=Number(room.state.round);for(const [pid,p] of pairs()){const stage=Number(p.stage||0),cycle=Number(p.cycle||1);
+   if(stage>=8){const ready=p.swapReady||{};if(cycle===1&&ready[p.waiterUid]===true&&ready[p.clientUid]===true)await swapPair(pid,p);continue}
+   const turns=pairRoundData(pid)?.turns?.[stage]||{},w=turns[p.waiterUid]||{},c=turns[p.clientUid]||{};let ready=false,patch={};
+   if(stage===0)ready=!!w.text&&!!c.text&&!!w.tableNo&&!!w.seatText&&!!c.seatedText;
+   if(stage===1){ready=!!w.askText&&!!c.clientText&&Array.isArray(c.drinkKeys)&&c.drinkKeys.length>0;if(ready)patch[`roleplays/${code}/rounds/${r}/pairs/${pid}/cycles/${cycle}/order/drinkKeys`]=c.drinkKeys}
+   if(stage===2){ready=!!w.askText&&!!c.clientText&&Array.isArray(c.foodKeys)&&c.foodKeys.length>0;if(ready)patch[`roleplays/${code}/rounds/${r}/pairs/${pid}/cycles/${cycle}/order/foodKeys`]=c.foodKeys}
+   if(stage===3)ready=!!w.confirmText&&!!c.confirmOkText;
+   if(stage===4)ready=!!w.serveText&&!!c.thanksText;
+   if(stage===5){const ms=await get(ref(db,`roleplayMissions/${code}/${r}/${pid}/${p.clientUid}`)),m=ms.val();if(c.text&&w.selectedItem&&w.replyText&&m){if(w.selectedItem===m.key){ready=true;patch[`roleplays/${code}/rounds/${r}/pairs/${pid}/cycles/${cycle}/feedback/5/${p.waiterUid}`]=null}else{const fb=pairRoundData(pid)?.feedback?.[5]?.[p.waiterUid];if(fb?.selectedItem!==w.selectedItem)patch[`roleplays/${code}/rounds/${r}/pairs/${pid}/cycles/${cycle}/feedback/5/${p.waiterUid}`]={kind:'wrong-item',selectedItem:w.selectedItem,at:nowServer()}}}}
+   if(stage===6)ready=!!c.text&&!!w.replyText&&!!c.paymentMethod&&!!c.paymentText;
+   if(stage===7)ready=!!w.goodbyeText&&!!c.goodbyeText;
+   if(Object.keys(patch).length)await update(ref(db),patch);
+   if(ready)await runTransaction(ref(db,`roleplays/${code}/pairs/${pid}/stage`),cur=>Number(cur)===stage?stage+1:cur);
+ }}finally{reconciling=false}
+}
+function allDone(){const pp=pairs();return pp.length>0&&pp.every(([,p])=>pairFullyDone(p))}
+function updateSwapButton(){const eligible=pairs().filter(([,p])=>Number(p.cycle||1)===1&&(Number(p.stage||0)>=8||pairTimeLeft(p)<=0)).length;$('#swapBtn').disabled=eligible===0;$('#swapInfo').textContent=eligible?`🔄 ${eligible} ${eligible===1?'mesa puede':'mesas pueden'} cambiar de rol ahora. Las parejas terminadas también pueden solicitarlo desde sus pantallas.`:'Las parejas que terminan pueden pulsar “Estoy listo/a para cambiar”. No tienen que esperar al resto.'}
+setInterval(()=>{if(!room||room.state?.status!=='playing')return;const initial=Math.max(0,Number(room.state?.roundEndsAt||0)-nowServer()),m=Math.floor(initial/60000),ss=Math.floor((initial%60000)/1000);$('#timer').textContent=String(m).padStart(2,'0')+':'+String(ss).padStart(2,'0');document.querySelectorAll('[data-pair-timer]').forEach(el=>{const p=room.pairs?.[el.dataset.pairTimer];if(p)el.textContent=fmtTime(pairTimeLeft(p))});updateSwapButton()},500);
+</script>
+</body></html>
