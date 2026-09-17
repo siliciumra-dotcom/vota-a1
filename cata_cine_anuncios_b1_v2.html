@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Cata de pantalla · Cine + anuncios</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap');
+:root{--bg1:#0c1020;--bg2:#21112c;--card:#15182cea;--line:#3b4162;--text:#fbfbff;--muted:#aeb4ca;--yellow:#ffd15c;--pink:#ef5f9f;--green:#54d8aa;--blue:#66a8ff;--orange:#ff9466}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:Poppins,sans-serif;color:var(--text);background:radial-gradient(circle at 8% 10%,#5a49c555,transparent 28%),radial-gradient(circle at 90% 15%,#ee5a9950,transparent 27%),linear-gradient(145deg,var(--bg1),var(--bg2));padding:18px}
+button{font:inherit} .hidden{display:none!important} .wrap{width:min(1260px,100%);margin:auto}
+.top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:15px}
+.brand{font-size:clamp(22px,3vw,36px);font-weight:900} .badge{border:1px solid var(--line);border-radius:999px;padding:7px 11px;background:#101426;color:#c9cee0;font-size:12px;font-weight:800}
+.grid{display:grid;grid-template-columns:minmax(500px,1.45fr) minmax(320px,.55fr);gap:17px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:20px;box-shadow:0 24px 65px #0007}
+.playerWrap{width:100%;aspect-ratio:16/9;border-radius:19px;overflow:hidden;background:#060811;border:1px solid #3f4568} #player{width:100%;height:100%}
+.row{display:flex;justify-content:space-between;gap:10px;align-items:center;margin:13px 0 8px} .label{font-size:13px;font-weight:900;letter-spacing:.1em;color:var(--yellow)} .time{font-size:12px;color:var(--muted);font-weight:700}
+.samples{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin:12px 0}
+.sample{border:1px solid #464d72;background:#252a46;color:white;border-radius:13px;padding:10px 4px;cursor:pointer;font-size:12px;font-weight:900}
+.sample.active{background:var(--yellow);color:#171829;border-color:var(--yellow)} .sample.movie::before{content:"🎬 "} .sample.ad::before{content:"📺 "}
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0} .btn{border:0;border-radius:14px;padding:11px 14px;cursor:pointer;font-weight:900;background:var(--yellow);color:#171829}
+.secondary{background:#282e4c;color:white;border:1px solid #485075} .pink{background:var(--pink);color:white} .green{background:var(--green)} .red{background:#ff6e7b;color:white}
+.timerline{display:flex;align-items:center;gap:10px;margin-top:11px} .timer{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;border:5px solid var(--yellow);background:#0c0f1e;font-size:21px;font-weight:900}
+.progress{height:11px;flex:1;border-radius:999px;overflow:hidden;background:#0c0f1e;border:1px solid #383f61} .progress>div{height:100%;width:0;background:linear-gradient(90deg,var(--yellow),var(--pink))}
+.answer{margin-top:12px;padding:15px;border-radius:17px;background:#0d1120;border:1px solid #3a4162;opacity:.34;transition:.2s opacity} .answerTitle{font-size:24px;font-weight:900} .answerMeta{color:var(--yellow);font-weight:900;margin-top:4px} .note{color:var(--muted);font-size:13px;line-height:1.5;margin-top:8px}
+.side h2{margin:0 0 9px} .side p{color:var(--muted);font-size:13px;line-height:1.55} .promptList{display:grid;gap:8px;margin:14px 0} .prompt{border:1px solid #3d4467;background:#101426;border-radius:14px;padding:11px 12px;font-size:13px;font-weight:800}
+.typePill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 10px;font-weight:900;font-size:12px;background:#242945;border:1px solid #444b70}
+.projectorButton{width:100%;margin-top:6px}
+.projector{min-height:calc(100vh - 36px);display:grid;place-items:center} .projectorCard{width:min(1180px,100%);min-height:88vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:clamp(20px,4vw,48px);text-align:center}
+.projTop{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:14px} .projNum{font-size:clamp(28px,4vw,46px);font-weight:900} .projType{font-size:clamp(13px,2vw,18px);font-weight:900;letter-spacing:.1em;color:var(--yellow)}
+.projVideo{width:min(1050px,100%);aspect-ratio:16/9;background:#050711;border-radius:22px;overflow:hidden;border:1px solid #424a70;box-shadow:0 28px 70px #0008} #projectorPlayer{width:100%;height:100%}
+.projStatus{font-size:clamp(20px,3vw,32px);font-weight:900;margin-top:15px} .projPrompts{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:12px} .projPrompt{padding:9px 13px;border-radius:999px;border:1px solid #444b70;background:#151a30;font-weight:800;font-size:clamp(12px,1.5vw,16px)}
+.reveal{width:min(980px,100%);margin-top:15px;padding:18px;border-radius:20px;background:#101426;border:1px solid #464e74} .revealTitle{font-size:clamp(28px,4vw,50px);font-weight:900} .revealCreator{font-size:clamp(17px,2.5vw,25px)} .revealMeta{color:var(--yellow);font-weight:900;margin-top:6px} .revealNote{color:#c3c8d8;margin-top:9px;line-height:1.5}
+.activate{margin-top:14px}
+@media(max-width:900px){.grid{grid-template-columns:1fr}.samples{grid-template-columns:repeat(5,1fr)}}
+@media(max-width:560px){body{padding:9px}.samples{grid-template-columns:repeat(2,1fr)}.card{padding:14px}}
+</style>
+</head>
+<body>
+<div class="wrap" id="teacherUI">
+  <div class="top"><div class="brand">🎬📺 CATA DE PANTALLA</div><div class="badge">cine + anuncios · B1</div></div>
+  <div class="grid">
+    <main class="card">
+      <div class="playerWrap"><div id="player"></div></div>
+      <div class="row"><div class="label" id="sampleLabel"></div><div class="time" id="timeCode"></div></div>
+      <div class="samples" id="sampleButtons"></div>
+      <div class="controls">
+        <button class="btn" id="playBtn">▶ VER</button>
+        <button class="btn secondary" id="replayBtn">↻ OTRA VEZ</button>
+        <button class="btn red" id="stopBtn">■ STOP</button>
+        <button class="btn pink" id="revealBtn">👁 REVELAR</button>
+        <button class="btn green" id="nextBtn">SIGUIENTE →</button>
+      </div>
+      <div class="timerline"><div class="timer" id="timer"></div><div class="progress"><div id="progressFill"></div></div></div>
+      <div class="answer" id="answer">
+        <div class="answerTitle" id="answerTitle"></div>
+        <div id="answerCreator"></div>
+        <div class="answerMeta" id="answerMeta"></div>
+        <div class="note" id="answerNote"></div>
+      </div>
+    </main>
+    <aside class="card side">
+      <h2 id="sideType"></h2>
+      <div class="typePill" id="typePill"></div>
+      <div class="promptList" id="promptList"></div>
+      <button class="btn green projectorButton" id="openProjector">OTWÓRZ EKRAN NA TV</button>
+    </aside>
+  </div>
+</div>
+
+<div class="projector hidden" id="projectorUI">
+  <section class="card projectorCard">
+    <div class="projTop"><div class="projNum" id="projNum">#1</div><div class="projType" id="projType"></div></div>
+    <div class="projVideo"><div id="projectorPlayer"></div></div>
+    <button class="btn green activate hidden" id="activateProjector">AKTYWUJ ODTWARZANIE</button>
+    <div class="projStatus" id="projStatus">Preparados…</div>
+    <div class="projPrompts" id="projPrompts"></div>
+    <div class="reveal hidden" id="projReveal">
+      <div class="revealTitle" id="projTitle"></div>
+      <div class="revealCreator" id="projCreator"></div>
+      <div class="revealMeta" id="projMeta"></div>
+      <div class="revealNote" id="projNote"></div>
+    </div>
+  </section>
+</div>
+
+<script>
+const ITEMS=[{"n": 1, "type": "película", "icon": "🎬", "videoId": "CzJM3jYKjAg", "start": 28, "end": 68, "title": "Relatos salvajes", "creator": "Damián Szifron", "country": "🇦🇷 Argentina / 🇪🇸 España", "meta": "2014 · comedia negra / drama", "note": "Seis historias sobre personas que pierden el control. Humor negro, tensión y situaciones cotidianas llevadas al extremo."}, {"n": 2, "type": "anuncio", "icon": "📺", "videoId": "EpYnBzIoWHQ", "start": 25, "end": 70, "title": "Justino", "creator": "Lotería de Navidad", "country": "🇪🇸 España", "meta": "2015 · animación / Navidad", "note": "Un vigilante nocturno de una fábrica de maniquíes intenta conectar con compañeros a los que nunca ve."}, {"n": 3, "type": "película", "icon": "🎬", "videoId": "XKM6LZGZVtI", "start": 22, "end": 62, "title": "La sociedad de la nieve", "creator": "J. A. Bayona", "country": "🇪🇸 España / 🇺🇾 Uruguay", "meta": "2023 · supervivencia / drama", "note": "La historia del vuelo 571 y de los supervivientes de los Andes, contada desde la experiencia del grupo."}, {"n": 4, "type": "anuncio", "icon": "📺", "videoId": "grTQHDlcI2w", "start": 0, "end": 45, "title": "Familiarizados", "creator": "IKEA España", "country": "🇪🇸 España", "meta": "2018 · campaña de Navidad", "note": "Familias reales responden preguntas sobre redes, famosos y, después, sobre las personas de su propia familia."}, {"n": 5, "type": "película", "icon": "🎬", "videoId": "ngl5wCDw840", "start": 14, "end": 54, "title": "Ya no estoy aquí", "creator": "Fernando Frías", "country": "🇲🇽 México", "meta": "2019 · drama / cultura urbana", "note": "Ulises, un joven de Monterrey vinculado a la cultura de la cumbia rebajada, se ve obligado a abandonar su entorno."}, {"n": 6, "type": "anuncio", "icon": "📺", "videoId": "SMzzk8A1fXQ", "start": 0, "end": 45, "title": "Hazte extranjero", "creator": "Campofrío", "country": "🇪🇸 España", "meta": "2013 · humor / identidad", "note": "Una campaña que juega con la idea de cambiar de nacionalidad para hablar, con humor, de costumbres e identidad españolas."}, {"n": 7, "type": "película", "icon": "🎬", "videoId": "4GMO3BgUIOk", "start": 18, "end": 58, "title": "Dolor y gloria", "creator": "Pedro Almodóvar", "country": "🇪🇸 España", "meta": "2019 · drama", "note": "Un director de cine revisita recuerdos, relaciones y momentos decisivos de su vida mientras atraviesa una crisis creativa."}, {"n": 8, "type": "anuncio", "icon": "📺", "videoId": "4FADaGZ6QEw", "start": 0, "end": 45, "title": "Para todos", "creator": "Coca-Cola Argentina", "country": "🇦🇷 Argentina", "meta": "2002 · publicidad", "note": "Una voz enumera tipos de personas mientras las formas del envase ilustran cada contraste. Una campaña construida casi solo con lenguaje e imagen."}, {"n": 9, "type": "película", "icon": "🎬", "videoId": "hKa8U-8vsfU", "start": 20, "end": 60, "title": "El secreto de sus ojos", "creator": "Juan José Campanella", "country": "🇦🇷 Argentina / 🇪🇸 España", "meta": "2009 · thriller / drama", "note": "Un antiguo empleado judicial vuelve a un caso de asesinato que lo marcó durante décadas."}, {"n": 10, "type": "anuncio", "icon": "📺", "videoId": "DNDUX5Q19tU", "start": 0, "end": 35, "title": "La llama que llama", "creator": "Telecom Argentina", "country": "🇦🇷 Argentina", "meta": "1998–2001 · humor", "note": "Una familia de llamas hace bromas por teléfono. La campaña juega con el doble sentido de 'llama' y 'llamar'."}];
+const isProjector=new URLSearchParams(location.search).get('projector')==='1';
+const channel=('BroadcastChannel' in window)?new BroadcastChannel('cata_cine_anuncios_b1_v1'):null;
+const $=s=>document.querySelector(s);
+let current=0,player=null,projectorPlayer=null,playerReady=false,projectorReady=false,playing=false,revealed=false,timerId=null,startWall=0,duration=40,lastProgress=0;
+
+const moviePrompts=['🍿 ¿La verías?','🎭 ¿Qué género parece?','💬 3 adjetivos','🌍 ¿Dónde crees que ocurre?'];
+const adPrompts=['🎯 ¿Funciona?','🛍️ ¿Qué vende?','💬 ¿Qué emoción busca?','⭐ Nota /10'];
+
+if(isProjector){
+  $('#teacherUI').classList.add('hidden');$('#projectorUI').classList.remove('hidden');
+  if(channel){channel.onmessage=e=>projectorMessage(e.data);channel.postMessage({type:'HELLO_PROJECTOR'})}
+  loadYT();
+}else{
+  $('#projectorUI').classList.add('hidden');initTeacher();loadYT();
+}
+
+function loadYT(){const tag=document.createElement('script');tag.src='https://www.youtube.com/iframe_api';document.head.appendChild(tag)}
+window.onYouTubeIframeAPIReady=function(){
+  if(isProjector){
+    projectorPlayer=new YT.Player('projectorPlayer',{width:'100%',height:'100%',videoId:ITEMS[0].videoId,playerVars:{playsinline:1,controls:0,rel:0,fs:1,iv_load_policy:3},events:{onReady:()=>{projectorReady=true;cueProjector(0);$('#activateProjector').classList.remove('hidden')},onStateChange:e=>{if(e.data===YT.PlayerState.PLAYING)$('#activateProjector').classList.add('hidden')}}});
+  }else{
+    player=new YT.Player('player',{width:'100%',height:'100%',videoId:ITEMS[0].videoId,playerVars:{playsinline:1,controls:1,rel:0,fs:0,iv_load_policy:3},events:{onReady:()=>{playerReady=true;cueTeacher()}}});
+  }
+}
+
+function initTeacher(){
+  renderButtons();selectItem(0,false);
+  $('#playBtn').onclick=playCurrent;$('#replayBtn').onclick=playCurrent;$('#stopBtn').onclick=stopCurrent;$('#revealBtn').onclick=revealCurrent;
+  $('#nextBtn').onclick=()=>selectItem((current+1)%ITEMS.length,true);$('#openProjector').onclick=openProjector;
+  if(channel)channel.onmessage=e=>{if(e.data?.type==='HELLO_PROJECTOR')broadcastState()};
+}
+function renderButtons(){
+  $('#sampleButtons').innerHTML=ITEMS.map((x,i)=>`<button class="sample ${x.type==='película'?'movie':'ad'}" data-i="${i}">#${i+1}</button>`).join('');
+  document.querySelectorAll('.sample').forEach(b=>b.onclick=()=>selectItem(Number(b.dataset.i),true));
+}
+function selectItem(i,broadcast=true){
+  if(timerId)clearInterval(timerId);current=Math.max(0,Math.min(ITEMS.length-1,i));playing=false;revealed=false;lastProgress=0;
+  const x=ITEMS[current];duration=x.end-x.start;
+  $('#sampleLabel').textContent=`${x.icon} MUESTRA ${current+1} · ${x.type.toUpperCase()}`;
+  $('#timeCode').textContent=`${fmt(x.start)}–${fmt(x.end)} · ${duration} s`;
+  $('#timer').textContent=duration;$('#progressFill').style.width='0%';$('#playBtn').textContent=`▶ VER ${duration} s`;
+  $('#answer').style.opacity='.34';$('#answerTitle').textContent=x.title;$('#answerCreator').textContent=x.creator;$('#answerMeta').textContent=`${x.country} · ${x.meta}`;$('#answerNote').textContent=x.note;
+  document.querySelectorAll('.sample').forEach((b,j)=>b.classList.toggle('active',j===current));
+  const prompts=x.type==='película'?moviePrompts:adPrompts;$('#promptList').innerHTML=prompts.map(p=>`<div class="prompt">${p}</div>`).join('');
+  $('#sideType').textContent=x.type==='película'?'🎬 Después del tráiler':'📺 Después del anuncio';$('#typePill').textContent=x.type==='película'?'PELÍCULA':'ANUNCIO';
+  if(playerReady)cueTeacher();if(broadcast)broadcastState();
+}
+function cueTeacher(){const x=ITEMS[current];try{player.cueVideoById({videoId:x.videoId,startSeconds:x.start,endSeconds:x.end})}catch(e){}}
+function playCurrent(){
+  if(!playerReady)return;const x=ITEMS[current];revealed=false;$('#answer').style.opacity='.34';
+  try{player.loadVideoById({videoId:x.videoId,startSeconds:x.start,endSeconds:x.end});player.mute();playing=true;startTimer();broadcast({type:'PLAY',index:current,start:x.start,end:x.end})}catch(e){}
+}
+function stopCurrent(){
+  if(playerReady)player.pauseVideo();playing=false;if(timerId){clearInterval(timerId);timerId=null}
+  broadcast({type:'STOP',index:current,progress:lastProgress,revealed});
+}
+function revealCurrent(){
+  revealed=!revealed;$('#answer').style.opacity=revealed?'1':'.34';broadcast({type:'REVEAL',index:current,revealed});
+}
+function startTimer(){
+  if(timerId)clearInterval(timerId);startWall=performance.now();lastProgress=0;tick();timerId=setInterval(tick,100);
+}
+function tick(){
+  if(!playing)return;const elapsed=(performance.now()-startWall)/1000;lastProgress=Math.max(0,Math.min(1,elapsed/duration));
+  $('#progressFill').style.width=`${lastProgress*100}%`;$('#timer').textContent=Math.max(0,Math.ceil(duration-elapsed));
+  if(elapsed>=duration){playing=false;if(timerId){clearInterval(timerId);timerId=null};if(playerReady)player.pauseVideo();broadcast({type:'STOP',index:current,progress:1,revealed})}
+}
+function broadcast(obj){if(channel)channel.postMessage(obj)}
+function broadcastState(){broadcast({type:'STATE',index:current,revealed,playing,progress:lastProgress})}
+function openProjector(){
+  const u=new URL(location.href);u.searchParams.set('projector','1');const win=window.open(u.href,'cata_cine_anuncios_projector','width=1280,height=820');
+  if(win)setTimeout(broadcastState,900);
+}
+function projectorMessage(msg){
+  if(!msg)return;
+  if(msg.type==='STATE'){showProjectorItem(msg.index);setReveal(msg.revealed);return}
+  if(msg.type==='PLAY'){showProjectorItem(msg.index);setReveal(false);if(projectorReady){const x=ITEMS[msg.index];try{projectorPlayer.loadVideoById({videoId:x.videoId,startSeconds:x.start,endSeconds:x.end});projectorPlayer.unMute();projectorPlayer.playVideo()}catch(e){}}return}
+  if(msg.type==='STOP'){if(projectorReady)projectorPlayer.pauseVideo();$('#projStatus').textContent='¿Qué piensas?';return}
+  if(msg.type==='REVEAL'){showProjectorItem(msg.index);setReveal(msg.revealed);return}
+}
+function showProjectorItem(i){
+  current=Math.max(0,Math.min(ITEMS.length-1,Number(i)||0));const x=ITEMS[current];
+  $('#projNum').textContent=`#${current+1}`;$('#projType').textContent=`${x.icon} ${x.type.toUpperCase()}`;$('#projStatus').textContent='Mira y escucha.';
+  const prompts=x.type==='película'?moviePrompts:adPrompts;$('#projPrompts').innerHTML=prompts.map(p=>`<div class="projPrompt">${p}</div>`).join('');
+  $('#projTitle').textContent=x.title;$('#projCreator').textContent=x.creator;$('#projMeta').textContent=`${x.country} · ${x.meta}`;$('#projNote').textContent=x.note;
+  if(projectorReady)cueProjector(current);
+}
+function cueProjector(i){const x=ITEMS[i];try{projectorPlayer.cueVideoById({videoId:x.videoId,startSeconds:x.start,endSeconds:x.end})}catch(e){}}
+function setReveal(v){revealed=!!v;$('#projReveal').classList.toggle('hidden',!revealed)}
+$('#activateProjector')?.addEventListener('click',()=>{if(projectorReady){projectorPlayer.unMute();projectorPlayer.playVideo();setTimeout(()=>projectorPlayer.pauseVideo(),120);$('#activateProjector').classList.add('hidden')}});
+function fmt(sec){const m=Math.floor(sec/60),s=String(sec%60).padStart(2,'0');return `${m}:${s}`}
+</script>
+</body>
+</html>
