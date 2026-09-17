@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<title>Alumno · Cata de pantalla</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap');
+:root{--text:#fff;--muted:#b6bbd1;--accent:#ffd15c;--line:#353b5c}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent} body{margin:0;min-height:100svh;font-family:Poppins,sans-serif;color:var(--text);background:radial-gradient(circle at 10% 10%,#7443cc55,transparent 30%),radial-gradient(circle at 95% 15%,#e54f9250,transparent 27%),linear-gradient(145deg,#0a0d1b,#19132f);padding:12px}
+.wrap{width:min(650px,100%);margin:auto} .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px} .brand{font-weight:900;font-size:19px} .pill{font-size:11px;padding:6px 9px;border:1px solid var(--line);border-radius:999px;color:#cad0e4;background:#111426}
+.card{background:#15192ce9;border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 22px 60px #0008} .hidden{display:none!important} .center{text-align:center} .muted{color:var(--muted)}
+input{width:100%;font:inherit;background:#0b1020;color:white;border:1px solid #3b4568;border-radius:14px;padding:13px;margin:5px 0 10px;font-size:18px} #room{font-size:29px;letter-spacing:.12em;text-align:center;font-weight:900}
+button{font:inherit;font-weight:900;border:0;border-radius:16px;padding:14px;cursor:pointer} .joinBtn{width:100%;background:var(--accent);color:#171829}
+.wait{font-size:70px} .sampleLabel{font-size:13px;letter-spacing:.15em;color:var(--accent);font-weight:900} .sample{font-size:clamp(65px,20vw,120px);font-weight:900;line-height:1;margin:12px 0 5px} .question{font-size:clamp(23px,6vw,34px);font-weight:900;margin-bottom:17px}
+.votes{display:grid;grid-template-columns:1fr 1fr;gap:10px} .vote{min-height:145px;color:white;text-align:center;font-size:clamp(16px,4vw,21px);line-height:1.25;box-shadow:0 9px 20px #0005;transition:.1s transform,.15s opacity} .vote:active{transform:scale(.97)}
+.v4{background:linear-gradient(145deg,#d7478b,#f06a9f)} .v3{background:linear-gradient(145deg,#4b75df,#64a7ff)} .v2{background:linear-gradient(145deg,#bd8a22,#e2b33d)} .v1{background:linear-gradient(145deg,#687080,#8f96a3)}
+.vote.lock{opacity:.35} .vote.chosen{opacity:1;outline:4px solid white} .thanks{margin-top:15px;padding:15px;border-radius:15px;background:#0d1222;border:1px solid #343d5e;font-weight:800} .item{margin-top:12px;color:var(--accent);font-weight:800}
+@media(max-width:440px){body{padding:7px}.card{padding:13px}.vote{min-height:120px}.votes{gap:7px}}
+</style></head>
+<body>
+<div class="wrap">
+<div class="top"><div class="brand">🎬📺 CATA</div><div class="pill" id="nickPill">B1</div></div>
+<section class="card" id="join"><input id="room" inputmode="numeric" maxlength="6" placeholder="Código"><input id="nick" maxlength="22" placeholder="Tu nombre"><button class="joinBtn" id="joinBtn">ENTRAR</button><div class="muted center" id="status" style="margin-top:10px"></div></section>
+<section class="card center hidden" id="waiting"><div class="wait">🍿</div><h2 id="waitNick"></h2><div class="muted">Espera al profesor.</div></section>
+<section class="card center hidden" id="voteScreen"><div class="sampleLabel" id="kind"></div><div class="sample" id="sample">#1</div><div class="question" id="question"></div>
+<div class="votes"><button class="vote v4" data-v="4" id="v4"></button><button class="vote v3" data-v="3" id="v3"></button><button class="vote v2" data-v="2" id="v2"></button><button class="vote v1" data-v="1" id="v1"></button></div>
+<div class="thanks hidden" id="thanks"></div><div class="item hidden" id="item"></div></section>
+<section class="card center hidden" id="finished"><div class="wait">🏆</div><h2>Fin de la cata</h2></section>
+</div>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
+import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
+import { getDatabase, ref, get, set, onValue, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js';
+import { firebaseConfig } from './firebase-config.js';
+const ITEMS=[{"n": 1, "type": "película", "icon": "🎬", "videoId": "CzJM3jYKjAg", "start": 28, "end": 68, "title": "Relatos salvajes", "creator": "Damián Szifron", "country": "🇦🇷 Argentina / 🇪🇸 España", "meta": "2014 · comedia negra / drama", "note": "Seis historias sobre personas que pierden el control. Humor negro, tensión y situaciones cotidianas llevadas al extremo."}, {"n": 2, "type": "anuncio", "icon": "📺", "videoId": "EpYnBzIoWHQ", "start": 25, "end": 70, "title": "Justino", "creator": "Lotería de Navidad", "country": "🇪🇸 España", "meta": "2015 · animación / Navidad", "note": "Un vigilante nocturno de una fábrica de maniquíes intenta conectar con compañeros a los que nunca ve."}, {"n": 3, "type": "película", "icon": "🎬", "videoId": "XKM6LZGZVtI", "start": 22, "end": 62, "title": "La sociedad de la nieve", "creator": "J. A. Bayona", "country": "🇪🇸 España / 🇺🇾 Uruguay", "meta": "2023 · supervivencia / drama", "note": "La historia del vuelo 571 y de los supervivientes de los Andes, contada desde la experiencia del grupo."}, {"n": 4, "type": "anuncio", "icon": "📺", "videoId": "grTQHDlcI2w", "start": 0, "end": 45, "title": "Familiarizados", "creator": "IKEA España", "country": "🇪🇸 España", "meta": "2018 · campaña de Navidad", "note": "Familias reales responden preguntas sobre redes, famosos y, después, sobre las personas de su propia familia."}, {"n": 5, "type": "película", "icon": "🎬", "videoId": "ngl5wCDw840", "start": 14, "end": 54, "title": "Ya no estoy aquí", "creator": "Fernando Frías", "country": "🇲🇽 México", "meta": "2019 · drama / cultura urbana", "note": "Ulises, un joven de Monterrey vinculado a la cultura de la cumbia rebajada, se ve obligado a abandonar su entorno."}, {"n": 6, "type": "anuncio", "icon": "📺", "videoId": "SMzzk8A1fXQ", "start": 0, "end": 45, "title": "Hazte extranjero", "creator": "Campofrío", "country": "🇪🇸 España", "meta": "2013 · humor / identidad", "note": "Una campaña que juega con la idea de cambiar de nacionalidad para hablar, con humor, de costumbres e identidad españolas."}, {"n": 7, "type": "película", "icon": "🎬", "videoId": "4GMO3BgUIOk", "start": 18, "end": 58, "title": "Dolor y gloria", "creator": "Pedro Almodóvar", "country": "🇪🇸 España", "meta": "2019 · drama", "note": "Un director de cine revisita recuerdos, relaciones y momentos decisivos de su vida mientras atraviesa una crisis creativa."}, {"n": 8, "type": "anuncio", "icon": "📺", "videoId": "4FADaGZ6QEw", "start": 0, "end": 45, "title": "Para todos", "creator": "Coca-Cola Argentina", "country": "🇦🇷 Argentina", "meta": "2002 · publicidad", "note": "Una voz enumera tipos de personas mientras las formas del envase ilustran cada contraste. Una campaña construida casi solo con lenguaje e imagen."}, {"n": 9, "type": "película", "icon": "🎬", "videoId": "hKa8U-8vsfU", "start": 20, "end": 60, "title": "El secreto de sus ojos", "creator": "Juan José Campanella", "country": "🇦🇷 Argentina / 🇪🇸 España", "meta": "2009 · thriller / drama", "note": "Un antiguo empleado judicial vuelve a un caso de asesinato que lo marcó durante décadas."}, {"n": 10, "type": "anuncio", "icon": "📺", "videoId": "DNDUX5Q19tU", "start": 0, "end": 35, "title": "La llama que llama", "creator": "Telecom Argentina", "country": "🇦🇷 Argentina", "meta": "1998–2001 · humor", "note": "Una familia de llamas hace bromas por teléfono. La campaña juega con el doble sentido de 'llama' y 'llamar'."}];
+const $=s=>document.querySelector(s);
+const labels={película:{q:'¿La verías?',4:'🍿 La vería hoy',3:'🙂 La vería',2:'🤔 Tal vez',1:'🙅 No la vería'},anuncio:{q:'¿Te convence?',4:'🎯 Me convence',3:'👍 Funciona',2:'🤔 No sé',1:'🙅 No funciona'}};
+const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getDatabase(app);
+let user=null,code=null,nick='',state={},current=-1,votedFor=-1;
+signInAnonymously(auth).catch(e=>$('#status').textContent='Firebase: '+e.message);onAuthStateChanged(auth,u=>user=u);
+const p=new URLSearchParams(location.search);if(p.get('room'))$('#room').value=p.get('room').replace(/\D/g,'').slice(0,6);
+$('#nick').value=localStorage.getItem('cata_cine_nick')||'';$('#joinBtn').onclick=join;document.querySelectorAll('.vote').forEach(b=>b.onclick=()=>vote(Number(b.dataset.v)));
+function rr(path=''){return ref(db,`musicVotes/${code}${path?'/'+path:''}`)}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+async function join(){
+ if(!user){$('#status').textContent='Conectando…';return}
+ const c=$('#room').value.replace(/\D/g,'').slice(0,6),n=$('#nick').value.trim().replace(/\s+/g,' ').slice(0,22);
+ if(c.length!==6){$('#status').textContent='Escribe el código de 6 cifras.';return} if(n.length<2){$('#status').textContent='Escribe tu nombre.';return}
+ $('#joinBtn').disabled=true;$('#status').textContent='Entrando…';
+ try{const room=(await get(ref(db,`musicVotes/${c}`))).val();if(!room||room.kind!=='cata_cine_anuncios_b1_votes')throw Error('No encuentro esta votación.');
+ code=c;nick=n;localStorage.setItem('cata_cine_nick',nick);await set(rr(`participants/${user.uid}`),{nick,joinedAt:serverTimestamp()});
+ $('#nickPill').textContent=nick;$('#waitNick').textContent=nick;$('#join').classList.add('hidden');$('#waiting').classList.remove('hidden');subscribe();
+ }catch(e){$('#status').textContent=e.message;$('#joinBtn').disabled=false}
+}
+function subscribe(){onValue(rr('state'),s=>{state=s.val()||{};if(state.status==='lobby'){show('waiting');return}if(state.status==='finished'){show('finished');return}if(state.status==='playing'){const n=Number(state.current||0);if(n!==current){current=n;votedFor=-1;resetButtons()}show('voteScreen');render()}})}
+function show(id){['waiting','voteScreen','finished'].forEach(x=>$('#'+x).classList.toggle('hidden',x!==id))}
+function resetButtons(){$('#thanks').classList.add('hidden');document.querySelectorAll('.vote').forEach(b=>{b.disabled=false;b.classList.remove('lock','chosen')})}
+function render(){
+ const x=ITEMS[current],l=labels[x.type];$('#sample').textContent=`${x.icon} #${current+1}`;$('#kind').textContent=x.type.toUpperCase();$('#question').textContent=l.q;
+ [4,3,2,1].forEach(v=>$('#v'+v).textContent=l[v]);const locked=!state.open||votedFor===current;document.querySelectorAll('.vote').forEach(b=>{b.disabled=locked;if(locked)b.classList.add('lock')});
+ $('#item').innerHTML=`${esc(x.title)} · ${esc(x.creator)}`;$('#item').classList.toggle('hidden',!state.revealed);
+ if(!state.open&&votedFor!==current){$('#thanks').classList.remove('hidden');$('#thanks').textContent='🔒 Votación cerrada'}
+}
+async function vote(value){
+ if(!state.open||votedFor===current)return;votedFor=current;document.querySelectorAll('.vote').forEach(b=>{b.disabled=true;b.classList.add('lock');if(Number(b.dataset.v)===value)b.classList.add('chosen')});
+ $('#thanks').classList.remove('hidden');$('#thanks').textContent='✓ Voto enviado';
+ try{await set(rr(`votes/${current}/${user.uid}`),{nick,value,votedAt:serverTimestamp()})}catch(e){votedFor=-1;resetButtons();$('#thanks').classList.remove('hidden');$('#thanks').textContent='Error. Inténtalo otra vez.'}
+}
+</script></body></html>
