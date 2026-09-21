@@ -77,7 +77,7 @@
       </div>
       <button id="joinBtn" class="primary">Entrar</button>
     </div>
-    <div id="joinMsg" class="sub" style="margin:10px 0 0"></div>
+    <div id="joinMsg" class="sub" style="margin:10px 0 0">Usa el mismo código de sala en todos los dispositivos.</div>
   </div>
 
   <div id="game" class="hidden">
@@ -108,24 +108,22 @@
 </div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import {
     getDatabase, ref, set, update, get, onValue, onDisconnect, remove,
     runTransaction, serverTimestamp
-  } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js";
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
   import {
-    getAuth, signInAnonymously
-  } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+    getAuth, signInAnonymously, setPersistence, browserSessionPersistence
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
   // 1) Wklej tutaj konfigurację swojej aplikacji Firebase:
   const firebaseConfig = {
-    apiKey: "TU_API_KEY",
-    authDomain: "TU_PROJECT.firebaseapp.com",
-    databaseURL: "https://TU_DATABASE_URL",
-    projectId: "TU_PROJECT",
-    storageBucket: "TU_PROJECT.firebasestorage.app",
-    messagingSenderId: "TU_SENDER_ID",
-    appId: "TU_APP_ID"
+    apiKey: "AIzaSyAdBK1SDrZD3Qft6iTQwE9vDK6VTPZOViM",
+    authDomain: "me-gusta-siliciumra.firebaseapp.com",
+    databaseURL: "https://me-gusta-siliciumra-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "me-gusta-siliciumra",
+    appId: "1:75421431819:web:b9bc7388366f6c9546ef0e"
   };
 
   const EXPERIENCES = [
@@ -188,6 +186,7 @@
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
   const auth = getAuth(app);
+  await setPersistence(auth, browserSessionPersistence).catch(()=>{});
 
   let uid = null;
   let myName = "";
@@ -309,10 +308,10 @@
 
   async function claimTile(index){
     if(!roomRef) return;
-    const tileDoneSnap = await get(ref(db,`rooms/${room}/tiles/${index}/done`));
+    const tileDoneSnap = await get(ref(db,`bingoExperiencias/${room}/tiles/${index}/done`));
     if(tileDoneSnap.exists() && tileDoneSnap.val()===true) return;
 
-    const activeRef = ref(db,`rooms/${room}/active`);
+    const activeRef = ref(db,`bingoExperiencias/${room}/active`);
     const result = await runTransaction(activeRef,current=>{
       if(current) return;
       return {
@@ -329,7 +328,7 @@
     if(!activeCache || activeCache.askerUid!==uid) return;
     const p = playersCache[targetUid];
     if(!p) return showNotice("Ta osoba nie jest już połączona.");
-    await update(ref(db,`rooms/${room}/active`),{
+    await update(ref(db,`bingoExperiencias/${room}/active`),{
       targetUid,
       targetName:p.name
     });
@@ -340,7 +339,7 @@
     const i = activeCache.tileIndex;
     const askerName = activeCache.askerName;
     const targetName = activeCache.targetName;
-    await update(ref(db,`rooms/${room}`),{
+    await update(ref(db,`bingoExperiencias/${room}`),{
       [`tiles/${i}`]:{
         done:true,
         askerName,
@@ -359,18 +358,18 @@
 
   async function answerNo(){
     if(!activeCache || activeCache.targetUid!==uid) return;
-    await set(ref(db,`rooms/${room}/active`),null);
+    await set(ref(db,`bingoExperiencias/${room}/active`),null);
   }
 
   async function clearActive(){
     if(!activeCache || activeCache.askerUid!==uid) return;
-    await set(ref(db,`rooms/${room}/active`),null);
+    await set(ref(db,`bingoExperiencias/${room}/active`),null);
   }
 
   async function resetRoom(){
     if(uid!==hostUid) return;
     if(!confirm("¿Reiniciar toda la sala?")) return;
-    await update(ref(db,`rooms/${room}`),{tiles:null,active:null});
+    await update(ref(db,`bingoExperiencias/${room}`),{tiles:null,active:null});
   }
 
   function escapeHtml(s=""){
@@ -391,32 +390,32 @@
       uid = cred.user.uid;
       myName = n;
       room = r;
-      roomRef = ref(db,`rooms/${room}`);
+      roomRef = ref(db,`bingoExperiencias/${room}`);
 
-      const hostRef = ref(db,`rooms/${room}/hostUid`);
+      const hostRef = ref(db,`bingoExperiencias/${room}/hostUid`);
       await runTransaction(hostRef,current=>current || uid);
 
-      const playerRef = ref(db,`rooms/${room}/players/${uid}`);
+      const playerRef = ref(db,`bingoExperiencias/${room}/players/${uid}`);
       await set(playerRef,{name:myName,joinedAt:Date.now()});
       onDisconnect(playerRef).remove();
 
-      onValue(ref(db,`rooms/${room}/hostUid`),snap=>{
+      onValue(ref(db,`bingoExperiencias/${room}/hostUid`),snap=>{
         hostUid = snap.val();
         $("#resetBtn").classList.toggle("hidden",hostUid!==uid);
       });
 
-      onValue(ref(db,`rooms/${room}/players`),snap=>{
+      onValue(ref(db,`bingoExperiencias/${room}/players`),snap=>{
         playersCache = snap.val() || {};
         renderPlayers();
         renderActive();
       });
 
-      onValue(ref(db,`rooms/${room}/tiles`),snap=>{
+      onValue(ref(db,`bingoExperiencias/${room}/tiles`),snap=>{
         tilesCache = snap.val() || {};
         renderBoard();
       });
 
-      onValue(ref(db,`rooms/${room}/active`),snap=>{
+      onValue(ref(db,`bingoExperiencias/${room}/active`),snap=>{
         activeCache = snap.val() || null;
         renderActive();
       });
@@ -428,7 +427,7 @@
       joinMsg.textContent="";
     }catch(err){
       console.error(err);
-      joinMsg.textContent = "No se ha podido conectar. Revisa firebaseConfig, Realtime Database y Anonymous Auth.";
+      joinMsg.textContent = "Firebase: " + (err?.code || err?.message || "error de conexión");
       joinBtn.disabled = false;
     }
   });
