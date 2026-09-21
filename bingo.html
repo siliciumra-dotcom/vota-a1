@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Bingo de experiencias</title>
+  <style>
+    :root{
+      --bg:#f7f7fb;--card:#ffffff;--ink:#22252b;--muted:#6b7280;
+      --line:#dfe3ea;--accent:#6750a4;--accent2:#ede8ff;
+      --ok:#e7f7ec;--okline:#77bb89;--danger:#f7e9e9;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+    .wrap{max-width:1050px;margin:0 auto;padding:24px 16px 48px}
+    h1{margin:0 0 6px;font-size:clamp(1.7rem,4vw,2.6rem)}
+    .sub{color:var(--muted);margin-bottom:18px}
+    .panel,.modal-card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px}
+    .join{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end}
+    label{display:block;font-size:.85rem;color:var(--muted);margin-bottom:5px}
+    input,button{font:inherit}
+    input{width:100%;min-height:44px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:white}
+    button{min-height:44px;border:0;border-radius:11px;padding:10px 14px;cursor:pointer}
+    button:disabled{opacity:.48;cursor:not-allowed}
+    .primary{background:var(--accent);color:#fff}
+    .secondary{background:white;border:1px solid var(--line);color:var(--ink)}
+    .ghost{background:transparent;border:1px solid var(--line)}
+    .statusbar{display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin:14px 0}
+    .pill{display:inline-flex;gap:7px;align-items:center;background:white;border:1px solid var(--line);border-radius:999px;padding:7px 10px;font-size:.9rem}
+    .players{display:flex;gap:7px;flex-wrap:wrap}
+    .player{padding:6px 9px;border-radius:999px;background:#eef1f5;font-size:.86rem}
+    .me{outline:2px solid var(--accent)}
+    .board{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-top:14px}
+    .tile{min-height:158px;background:var(--card);border:1px solid var(--line);border-radius:16px;text-align:left;padding:15px;position:relative;transition:.18s transform,.18s border-color,.18s background}
+    .tile:hover:not(:disabled){transform:translateY(-2px);border-color:#aaa4c7}
+    .tile .icon{font-size:1.7rem;display:block;margin-bottom:8px}
+    .tile .statement{font-weight:700;line-height:1.28}
+    .tile .mini{display:block;color:var(--muted);font-size:.82rem;margin-top:7px;line-height:1.3}
+    .tile.done{background:var(--ok);border-color:var(--okline)}
+    .tile.done:after{content:"✓";position:absolute;right:12px;top:10px;font-size:1.8rem;font-weight:800;color:#2f7a45}
+    .tile.busy{outline:3px solid var(--accent)}
+    .modal{position:fixed;inset:0;background:rgba(20,22,28,.46);display:flex;align-items:center;justify-content:center;padding:16px;z-index:20}
+    .hidden{display:none!important}
+    .modal-card{max-width:700px;width:100%;max-height:90vh;overflow:auto}
+    .eyebrow{font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
+    .bigq{font-size:clamp(1.3rem,3vw,2rem);font-weight:800;line-height:1.22;margin:9px 0 15px}
+    .follow{background:#f5f3fb;border-radius:12px;padding:12px;margin:12px 0;color:#464056}
+    .target-grid{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .target-grid button{background:white;border:1px solid var(--line)}
+    .actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
+    .yes{background:#2f7a45;color:white}
+    .no{background:#8a3f3f;color:white}
+    .notice{padding:10px 12px;border-radius:11px;background:#fff6d9;border:1px solid #ead08a;margin:10px 0}
+
+    .share-panel{margin:14px 0;display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center}
+    .qrbox{width:190px;min-height:190px;background:white;border:1px solid var(--line);border-radius:16px;padding:10px;display:grid;place-items:center}
+    .qrbox img,.qrbox canvas{max-width:168px!important;height:auto!important}
+    .room-big{font-size:clamp(1.8rem,5vw,3.2rem);font-weight:900;letter-spacing:.08em;margin:3px 0 9px}
+    .share-url{font-size:.84rem;color:var(--muted);word-break:break-all;margin:8px 0}
+    .success{animation:pop .45s ease}
+    @keyframes pop{0%{transform:scale(.94)}70%{transform:scale(1.025)}100%{transform:scale(1)}}
+    @media(max-width:720px){
+      .join{grid-template-columns:1fr}
+      .board{grid-template-columns:1fr}
+      .tile{min-height:118px}
+      .share-panel{grid-template-columns:1fr}
+      .qrbox{margin:auto}
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Bingo de experiencias</h1>
+  <div class="sub">Pretérito perfecto · vacaciones · experiencias</div>
+
+  <div id="joinPanel" class="panel">
+    <div class="join">
+      <div>
+        <label for="nameInput">Tu nombre</label>
+        <input id="nameInput" maxlength="24" placeholder="Marta">
+      </div>
+      <div>
+        <label for="roomInput">Código de la sala</label>
+        <input id="roomInput" maxlength="12" placeholder="CLASE21">
+      </div>
+      <button id="joinBtn" class="primary">Entrar</button>
+    </div>
+    <div id="joinMsg" class="sub" style="margin:10px 0 0">Usa el mismo código de sala en todos los dispositivos.</div>
+  </div>
+
+  <div id="game" class="hidden">
+    <div class="statusbar">
+      <div>
+        <span class="pill">Sala: <strong id="roomLabel"></strong></span>
+        <span class="pill">Tú: <strong id="meLabel"></strong></span>
+      </div>
+      <div class="players" id="players"></div>
+    </div>
+
+
+    <div id="sharePanel" class="panel share-panel hidden">
+      <div id="qrBox" class="qrbox" aria-label="Código QR de la sala"></div>
+      <div>
+        <div class="eyebrow">Invita a los demás</div>
+        <div id="roomBig" class="room-big"></div>
+        <div>Escanea el QR o abre el enlace. El código de la sala se rellenará automáticamente.</div>
+        <div id="shareUrlText" class="share-url"></div>
+        <div class="actions">
+          <button id="copyLinkBtn" type="button" class="secondary">Copiar enlace</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="notice" class="notice hidden"></div>
+
+    <div id="board" class="board"></div>
+
+    <div class="statusbar">
+      <span id="progress" class="pill">0 / 9 experiencias</span>
+      <button id="resetBtn" class="secondary hidden">Reiniciar sala</button>
+    </div>
+  </div>
+</div>
+
+<div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal-card">
+    <div id="modalTitle" class="eyebrow">Experiencia elegida</div>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getDatabase, ref, set, update, get, onValue, onDisconnect, remove,
+    runTransaction, serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+  import {
+    getAuth, signInAnonymously, setPersistence, browserSessionPersistence
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  // 1) Wklej tutaj konfigurację swojej aplikacji Firebase:
+  const firebaseConfig = {
+    apiKey: "AIzaSyAdBK1SDrZD3Qft6iTQwE9vDK6VTPZOViM",
+    authDomain: "me-gusta-siliciumra.firebaseapp.com",
+    databaseURL: "https://me-gusta-siliciumra-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "me-gusta-siliciumra",
+    appId: "1:75421431819:web:b9bc7388366f6c9546ef0e"
+  };
+
+  const EXPERIENCES = [
+    {
+      icon:"✈️",
+      statement:"Ha viajado este año a un lugar nuevo.",
+      question:"¿Has viajado este año a un lugar nuevo?",
+      follow:"¿Adónde has viajado y qué has visitado allí?"
+    },
+    {
+      icon:"🍜",
+      statement:"Ha probado una comida nueva durante las vacaciones.",
+      question:"¿Has probado alguna comida nueva durante las vacaciones?",
+      follow:"¿Qué has probado? ¿Te ha gustado?"
+    },
+    {
+      icon:"🌊",
+      statement:"Ha hecho una actividad por primera vez este año.",
+      question:"¿Has hecho alguna actividad por primera vez este año?",
+      follow:"¿Qué has hecho y con quién lo has hecho?"
+    },
+    {
+      icon:"🤝",
+      statement:"Ha conocido a alguien nuevo durante un viaje.",
+      question:"¿Has conocido a alguien nuevo durante un viaje?",
+      follow:"¿Dónde os habéis conocido? ¿Habéis seguido en contacto?"
+    },
+    {
+      icon:"🧳",
+      statement:"Ha tenido algún problema durante un viaje.",
+      question:"¿Has tenido algún problema durante un viaje este año?",
+      follow:"¿Qué ha pasado y cómo lo has solucionado?"
+    },
+    {
+      icon:"📍",
+      statement:"Ha descubierto un lugar que le ha sorprendido mucho.",
+      question:"¿Has descubierto algún lugar que te ha sorprendido mucho?",
+      follow:"¿Qué lugar has descubierto y qué te ha sorprendido?"
+    },
+    {
+      icon:"📸",
+      statement:"Ha sacado una foto especial durante un viaje.",
+      question:"¿Has sacado alguna foto especial durante un viaje?",
+      follow:"¿Dónde la has sacado y qué has fotografiado?"
+    },
+    {
+      icon:"🛍️",
+      statement:"Ha comprado algo durante un viaje que todavía usa.",
+      question:"¿Has comprado algo durante un viaje que todavía usas?",
+      follow:"¿Qué has comprado y por qué lo has elegido?"
+    },
+    {
+      icon:"🎯",
+      statement:"Ha hecho estas vacaciones algo que normalmente no hace.",
+      question:"¿Has hecho estas vacaciones algo que normalmente no haces?",
+      follow:"¿Qué has hecho? ¿Te ha gustado la experiencia?"
+    }
+  ];
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const auth = getAuth(app);
+  await setPersistence(auth, browserSessionPersistence).catch(()=>{});
+
+  let uid = null;
+  let myName = "";
+  let room = "";
+  let roomRef = null;
+  let hostUid = null;
+  let playersCache = {};
+  let activeCache = null;
+  let tilesCache = {};
+
+  const $ = s => document.querySelector(s);
+  const joinBtn = $("#joinBtn");
+  const joinMsg = $("#joinMsg");
+  const board = $("#board");
+  const modal = $("#modal");
+  const modalBody = $("#modalBody");
+  const notice = $("#notice");
+  const sharePanel = $("#sharePanel");
+  const qrBox = $("#qrBox");
+  const roomBig = $("#roomBig");
+  const shareUrlText = $("#shareUrlText");
+  const copyLinkBtn = $("#copyLinkBtn");
+  let currentShareUrl = "";
+
+
+  function cleanRoom(v){
+    return v.toUpperCase().replace(/[^A-Z0-9_-]/g,"").slice(0,12);
+  }
+
+  function roomLink(code){
+    const u = new URL(location.href);
+    u.search = "";
+    u.hash = "";
+    u.searchParams.set("room", code);
+    return u.toString();
+  }
+
+  function renderShare(){
+    if(!uid || !room || hostUid !== uid){
+      sharePanel.classList.add("hidden");
+      return;
+    }
+    currentShareUrl = roomLink(room);
+    roomBig.textContent = room;
+    shareUrlText.textContent = currentShareUrl;
+    sharePanel.classList.remove("hidden");
+    qrBox.innerHTML = "";
+    if(window.QRCode){
+      new QRCode(qrBox,{
+        text: currentShareUrl,
+        width: 168,
+        height: 168,
+        correctLevel: QRCode.CorrectLevel.M
+      });
+    }else{
+      qrBox.textContent = room;
+    }
+  }
+
+  const roomFromUrl = cleanRoom(new URLSearchParams(location.search).get("room") || "");
+  if(roomFromUrl){
+    $("#roomInput").value = roomFromUrl;
+    joinMsg.textContent = "Código de sala cargado. Escribe tu nombre y pulsa Entrar.";
+  }
+
+  copyLinkBtn.addEventListener("click", async()=>{
+    if(!currentShareUrl) return;
+    try{
+      await navigator.clipboard.writeText(currentShareUrl);
+      showNotice("Enlace copiado.");
+    }catch{
+      showNotice("No se ha podido copiar. Usa el enlace que aparece arriba.");
+    }
+  });
+
+  function showNotice(text){
+    notice.textContent = text;
+    notice.classList.remove("hidden");
+    setTimeout(()=>notice.classList.add("hidden"), 2600);
+  }
+
+  function renderBoard(){
+    board.innerHTML = "";
+    EXPERIENCES.forEach((e,i)=>{
+      const done = !!tilesCache[i]?.done;
+      const busy = activeCache && activeCache.tileIndex === i;
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "tile" + (done?" done":"") + (busy?" busy":"");
+      b.disabled = done || (!!activeCache && !busy);
+      b.innerHTML = `
+        <span class="icon">${e.icon}</span>
+        <span class="statement">${e.statement}</span>
+        <span class="mini">${done ? "Experiencia conseguida" : "Haz clic para preguntar"}</span>
+      `;
+      if(!done) b.addEventListener("click",()=>claimTile(i));
+      board.appendChild(b);
+    });
+    const doneCount = Object.values(tilesCache).filter(x=>x?.done).length;
+    $("#progress").textContent = `${doneCount} / ${EXPERIENCES.length} experiencias`;
+  }
+
+  function renderPlayers(){
+    const holder = $("#players");
+    holder.innerHTML = "";
+    Object.entries(playersCache).forEach(([id,p])=>{
+      const s = document.createElement("span");
+      s.className = "player" + (id===uid?" me":"");
+      s.textContent = p.name;
+      holder.appendChild(s);
+    });
+  }
+
+  function renderActive(){
+    renderBoard();
+    if(!activeCache){
+      modal.classList.add("hidden");
+      return;
+    }
+    const exp = EXPERIENCES[activeCache.tileIndex];
+    if(!exp) return;
+
+    modal.classList.remove("hidden");
+    const isAsker = activeCache.askerUid === uid;
+    const isTarget = activeCache.targetUid === uid;
+
+    if(!activeCache.targetUid){
+      let targets = "";
+      if(isAsker){
+        Object.entries(playersCache)
+          .filter(([id])=>id!==uid)
+          .forEach(([id,p])=>{
+            targets += `<button class="targetBtn" data-uid="${id}">${escapeHtml(p.name)}</button>`;
+          });
+      }
+      modalBody.innerHTML = `
+        <div class="bigq">${exp.icon} ${escapeHtml(exp.statement)}</div>
+        <div class="sub">${escapeHtml(activeCache.askerName)} ha elegido esta experiencia.</div>
+        ${isAsker ? `
+          <div class="eyebrow" style="margin-top:18px">Elige a una persona</div>
+          <div class="target-grid">${targets || "<span class='sub'>No hay otra persona conectada.</span>"}</div>
+          <div class="actions"><button id="cancelBtn" class="secondary">Cancelar</button></div>
+        ` : `<div class="notice">Espera: ${escapeHtml(activeCache.askerName)} está eligiendo a una persona.</div>`}
+      `;
+      document.querySelectorAll(".targetBtn").forEach(btn=>{
+        btn.addEventListener("click",()=>chooseTarget(btn.dataset.uid));
+      });
+      $("#cancelBtn")?.addEventListener("click",clearActive);
+      return;
+    }
+
+    const targetName = activeCache.targetName || "—";
+    modalBody.innerHTML = `
+      <div class="eyebrow">${escapeHtml(activeCache.askerName)} pregunta a ${escapeHtml(targetName)}</div>
+      <div class="bigq">${escapeHtml(exp.question)}</div>
+      <div class="follow"><strong>Pregunta más:</strong><br>${escapeHtml(exp.follow)}</div>
+      ${isTarget ? `
+        <div class="notice">Responde primero en voz alta. Después marca tu respuesta.</div>
+        <div class="actions">
+          <button id="yesBtn" class="yes">Sí ✓</button>
+          <button id="noBtn" class="no">No / todavía no</button>
+        </div>
+      ` : `
+        <div class="notice">${escapeHtml(targetName)} responde ahora.</div>
+      `}
+      ${isAsker ? `<div class="actions"><button id="cancelBtn" class="secondary">Cancelar pregunta</button></div>` : ""}
+    `;
+    $("#yesBtn")?.addEventListener("click",()=>answerYes());
+    $("#noBtn")?.addEventListener("click",()=>answerNo());
+    $("#cancelBtn")?.addEventListener("click",clearActive);
+  }
+
+  async function claimTile(index){
+    if(!roomRef) return;
+    const tileDoneSnap = await get(ref(db,`bingoExperiencias/${room}/tiles/${index}/done`));
+    if(tileDoneSnap.exists() && tileDoneSnap.val()===true) return;
+
+    const activeRef = ref(db,`bingoExperiencias/${room}/active`);
+    const result = await runTransaction(activeRef,current=>{
+      if(current) return;
+      return {
+        tileIndex:index,
+        askerUid:uid,
+        askerName:myName,
+        createdAt:Date.now()
+      };
+    });
+    if(!result.committed) showNotice("Ktoś właśnie wybrał inne pole.");
+  }
+
+  async function chooseTarget(targetUid){
+    if(!activeCache || activeCache.askerUid!==uid) return;
+    const p = playersCache[targetUid];
+    if(!p) return showNotice("Ta osoba nie jest już połączona.");
+    await update(ref(db,`bingoExperiencias/${room}/active`),{
+      targetUid,
+      targetName:p.name
+    });
+  }
+
+  async function answerYes(){
+    if(!activeCache || activeCache.targetUid!==uid) return;
+    const i = activeCache.tileIndex;
+    const askerName = activeCache.askerName;
+    const targetName = activeCache.targetName;
+    await update(ref(db,`bingoExperiencias/${room}`),{
+      [`tiles/${i}`]:{
+        done:true,
+        askerName,
+        targetName,
+        completedAt:Date.now()
+      },
+      active:null
+    });
+    showNotice("¡Experiencia conseguida!");
+    setTimeout(()=>{
+      const tile = board.children[i];
+      tile?.classList.add("success");
+      setTimeout(()=>tile?.classList.remove("success"),500);
+    },50);
+  }
+
+  async function answerNo(){
+    if(!activeCache || activeCache.targetUid!==uid) return;
+    await set(ref(db,`bingoExperiencias/${room}/active`),null);
+  }
+
+  async function clearActive(){
+    if(!activeCache || activeCache.askerUid!==uid) return;
+    await set(ref(db,`bingoExperiencias/${room}/active`),null);
+  }
+
+  async function resetRoom(){
+    if(uid!==hostUid) return;
+    if(!confirm("¿Reiniciar toda la sala?")) return;
+    await update(ref(db,`bingoExperiencias/${room}`),{tiles:null,active:null});
+  }
+
+  function escapeHtml(s=""){
+    return String(s).replace(/[&<>"']/g,m=>({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+    }[m]));
+  }
+
+  joinBtn.addEventListener("click",async()=>{
+    const n = $("#nameInput").value.trim().slice(0,24);
+    const r = cleanRoom($("#roomInput").value.trim());
+    if(n.length<2) return joinMsg.textContent="Escribe tu nombre.";
+    if(r.length<3) return joinMsg.textContent="El código debe tener al menos 3 caracteres.";
+    joinBtn.disabled = true;
+    joinMsg.textContent = "Conectando…";
+    try{
+      const cred = await signInAnonymously(auth);
+      uid = cred.user.uid;
+      myName = n;
+      room = r;
+      roomRef = ref(db,`bingoExperiencias/${room}`);
+
+      const hostRef = ref(db,`bingoExperiencias/${room}/hostUid`);
+      const existingHost = await get(hostRef);
+      if(!existingHost.exists()){
+        const hostTx = await runTransaction(hostRef,current=>current || uid);
+        if(!hostTx.committed && !hostTx.snapshot.exists()){
+          throw new Error("No se ha podido crear la sala.");
+        }
+      }
+
+      const playerRef = ref(db,`bingoExperiencias/${room}/players/${uid}`);
+      await set(playerRef,{name:myName,joinedAt:Date.now()});
+      onDisconnect(playerRef).remove();
+
+      onValue(ref(db,`bingoExperiencias/${room}/hostUid`),snap=>{
+        hostUid = snap.val();
+        $("#resetBtn").classList.toggle("hidden",hostUid!==uid);
+        renderShare();
+      });
+
+      onValue(ref(db,`bingoExperiencias/${room}/players`),snap=>{
+        playersCache = snap.val() || {};
+        renderPlayers();
+        renderActive();
+      });
+
+      onValue(ref(db,`bingoExperiencias/${room}/tiles`),snap=>{
+        tilesCache = snap.val() || {};
+        renderBoard();
+      });
+
+      onValue(ref(db,`bingoExperiencias/${room}/active`),snap=>{
+        activeCache = snap.val() || null;
+        renderActive();
+      });
+
+      $("#roomLabel").textContent = room;
+      $("#meLabel").textContent = myName;
+      $("#joinPanel").classList.add("hidden");
+      $("#game").classList.remove("hidden");
+      joinMsg.textContent="";
+    }catch(err){
+      console.error(err);
+      joinMsg.textContent = "Firebase: " + (err?.code || err?.message || "error de conexión") + ". Si aparece PERMISSION_DENIED, publica las nuevas reglas de Bingo.";
+      joinBtn.disabled = false;
+    }
+  });
+
+  $("#resetBtn").addEventListener("click",resetRoom);
+</script>
+</body>
+</html>
